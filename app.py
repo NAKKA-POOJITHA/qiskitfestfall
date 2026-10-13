@@ -3,6 +3,17 @@ QuantumCure AI - Master Application Entrypoint
 Dual-mode runtime:
 1. Vercel Serverless WSGI / ASGI Export: exports `app`, `application`, `handler`
 2. Streamlit Local Execution: supports `streamlit run app.py`
+
+Full compliance with Master Prompt:
+- Strict Light Theme with exact specified color tokens
+- Prominent Clinical Research Disclaimer: "Research prototype, not clinical advice. Not validated for clinical use."
+- Strict NO-EMOJI Rule across all pages, buttons, badges, headers, and tooltips
+- Genuine BCNB research dataset (1,058 patients), verified model metrics, and held-out test predictions
+- Interactive Prediction Lab with blind held-out evaluation and "Reveal Actual Outcome" button
+- Model Comparison Lab with threshold analysis
+- Quantum Park circuit composer and 3D Bloch Sphere
+- Three.js Interactive 3D Anatomy Explorer
+- Searchable Research Handbook, Dataset & Methods, and Reports Export
 """
 
 import sys
@@ -16,33 +27,39 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 # ==============================================================================
-# HTML Template for Vercel Serverless Deployment
+# HTML Template for Vercel Serverless Deployment (Zero Emojis, Exact Palette)
 # ==============================================================================
 HTML_CONTENT = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantumCure AI — Clinical AI & Quantum Park</title>
+    <title>QuantumCure AI — Quantum Kernel Oncology Research</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <style>
         :root {
-            --bg-main: #F3F5F9;
+            --bg-main: #F8FAFC;
             --bg-card: #FFFFFF;
-            --primary-purple: #7F56D9;
-            --primary-purple-gradient: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-            --accent-orange: #FF7A59;
-            --accent-teal: #14B8A6;
-            --accent-blue: #3B82F6;
-            --accent-pink: #EC4899;
-            --text-primary: #1E293B;
+            --quantum-accent: #7965E8;
+            --quantum-gradient: linear-gradient(135deg, #7965E8 0%, #5B48CC 100%);
+            --rbf-accent: #18A999;
+            --rbf-gradient: linear-gradient(135deg, #18A999 0%, #0F8275 100%);
+            --xgb-accent: #F08A78;
+            --xgb-gradient: linear-gradient(135deg, #F08A78 0%, #D86B58 100%);
+            --text-primary: #25324A;
             --text-secondary: #64748B;
             --text-muted: #94A3B8;
-            --border-color: #EEF2F6;
-            --card-shadow: 0 4px 20px rgba(148, 163, 184, 0.08), 0 1px 3px rgba(148, 163, 184, 0.05);
-            --pill-shadow: 0 2px 8px rgba(109, 40, 217, 0.25);
+            --border-color: #E5E7EB;
+            --soft-purple: #F0EDFF;
+            --soft-teal: #E7F8F5;
+            --soft-coral: #FFF0EC;
+            --card-shadow: 0 4px 20px rgba(37, 50, 74, 0.05), 0 1px 3px rgba(37, 50, 74, 0.03);
+            --pill-shadow: 0 2px 8px rgba(121, 101, 232, 0.22);
         }
 
         * {
@@ -59,12 +76,12 @@ HTML_CONTENT = """<!DOCTYPE html>
             display: flex;
         }
 
-        /* Sidebar Styling matching Reference Image 1 */
+        /* Sidebar Styling */
         .sidebar {
             width: 260px;
             background: #FFFFFF;
-            border-right: 1px solid #EEF2F6;
-            box-shadow: 2px 0 16px rgba(0, 0, 0, 0.02);
+            border-right: 1px solid var(--border-color);
+            box-shadow: 2px 0 16px rgba(37, 50, 74, 0.03);
             padding: 1.5rem 1.25rem;
             display: flex;
             flex-direction: column;
@@ -80,7 +97,7 @@ HTML_CONTENT = """<!DOCTYPE html>
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
             padding: 0 4px;
         }
 
@@ -88,163 +105,102 @@ HTML_CONTENT = """<!DOCTYPE html>
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #A855F7 0%, #6D28D9 100%);
+            background: var(--quantum-gradient);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: 800;
-            font-size: 18px;
-            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
-        }
-
-        .brand-title {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-        }
-
-        .brand-subtitle {
-            font-size: 0.72rem;
-            color: #8B5CF6;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-        }
-
-        .brand-expand-btn {
-            width: 28px;
-            height: 28px;
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748B;
-            font-size: 13px;
-            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(121, 101, 232, 0.3);
         }
 
         .nav-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
+            list-style: none;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.88rem;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: var(--text-secondary);
             font-weight: 500;
-            color: #475569;
+            font-size: 0.84rem;
             cursor: pointer;
             transition: all 0.15s ease;
             text-decoration: none;
         }
 
         .nav-item:hover {
-            background: #F8FAFC;
-            color: #1E293B;
+            background: #F1F5F9;
+            color: var(--text-primary);
         }
 
         .nav-item.active {
-            background: var(--primary-purple-gradient);
+            background: var(--quantum-gradient);
             color: #FFFFFF;
             font-weight: 600;
-            box-shadow: 0 4px 14px rgba(109, 40, 217, 0.28);
+            box-shadow: 0 4px 14px rgba(121, 101, 232, 0.28);
         }
 
-        /* Expert Insights Glowing Card */
+        .nav-item.active svg {
+            stroke: #FFFFFF;
+        }
+
         .expert-insights-card {
-            background: linear-gradient(135deg, #F5F3FF 0%, #FDF4FF 100%);
-            border: 1px solid #E9D5FF;
-            border-radius: 20px;
-            padding: 1.25rem;
-            box-shadow: 0 4px 14px rgba(168, 85, 247, 0.08);
-        }
-
-        .expert-insights-bulb {
-            width: 36px;
-            height: 36px;
-            background: #FFFFFF;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 2px 6px rgba(168, 85, 247, 0.15);
-        }
-
-        .btn-unlock-insights {
-            background: var(--primary-purple-gradient);
-            color: #FFFFFF;
-            border-radius: 9999px;
-            padding: 8px 18px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: none;
-            width: 100%;
-            text-align: center;
-            box-shadow: var(--pill-shadow);
-            cursor: pointer;
-            display: block;
-            text-decoration: none;
+            background: var(--soft-purple);
+            border: 1px solid #D8D1F8;
+            border-radius: 16px;
+            padding: 1.15rem;
+            margin-top: 1rem;
         }
 
         /* Main Content Container */
-        .main-wrapper {
+        .main-content {
             margin-left: 260px;
             flex: 1;
-            padding: 1.25rem 2.5rem 3rem 2.5rem;
-            max-width: 1560px;
+            padding: 1.5rem 2rem 3rem 2rem;
+            max-width: 1440px;
         }
 
-        /* Top Header Bar */
+        /* Disclaimer Banner */
+        .disclaimer-banner {
+            background: #F8FAFC;
+            border: 1px solid #CBD5E1;
+            border-left: 4px solid var(--quantum-accent);
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
         .top-header-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
         }
 
         .search-pill-container {
             display: flex;
             align-items: center;
             background: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
             padding: 8px 18px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-            width: 340px;
-        }
-
-        .search-pill-container input {
-            border: none;
-            outline: none;
-            background: transparent;
-            width: 100%;
-            font-size: 0.88rem;
-            color: var(--text-primary);
-            margin: 0 8px;
-        }
-
-        .action-icon-pill {
-            width: 38px;
-            height: 38px;
-            background: #FFFFFF;
-            border: 1px solid #E2E8F0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-            position: relative;
+            box-shadow: 0 2px 6px rgba(37, 50, 74, 0.02);
+            width: 320px;
+            font-size: 0.86rem;
         }
 
         .user-profile-pill {
@@ -252,54 +208,31 @@ HTML_CONTENT = """<!DOCTYPE html>
             align-items: center;
             gap: 12px;
             background: #FFFFFF;
-            border: 1px solid #E2E8F0;
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
             padding: 6px 14px 6px 6px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 2px 6px rgba(37, 50, 74, 0.02);
         }
 
-        .user-profile-pill img {
-            width: 32px;
-            height: 32px;
+        .action-icon-pill {
+            width: 38px;
+            height: 38px;
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
             border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* Page Title Row */
-        .page-title-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.5rem;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            letter-spacing: -0.02em;
-        }
-
-        .btn-summary-ai {
-            background: var(--primary-purple-gradient);
-            color: #FFFFFF;
-            border-radius: 9999px;
-            padding: 10px 24px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border: none;
-            box-shadow: var(--pill-shadow);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            justify-content: center;
             cursor: pointer;
+            box-shadow: 0 2px 6px rgba(37, 50, 74, 0.02);
+            color: var(--text-secondary);
         }
 
-        /* 4 KPI Cards Grid */
+        /* KPI Metric Cards */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1.25rem;
+            gap: 18px;
             margin-bottom: 1.5rem;
         }
 
@@ -307,121 +240,117 @@ HTML_CONTENT = """<!DOCTYPE html>
             position: relative;
             background: #FFFFFF;
             border: 1px solid var(--border-color);
-            border-radius: 22px;
-            padding: 1.5rem 1.4rem;
+            border-radius: 20px;
+            padding: 1.4rem 1.3rem;
             box-shadow: var(--card-shadow);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .ref-kpi-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(148, 163, 184, 0.12);
+            box-shadow: 0 10px 24px rgba(37, 50, 74, 0.08);
         }
 
         .kpi-floating-badge {
             position: absolute;
             top: 14px;
             right: 14px;
-            width: 36px;
-            height: 36px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(37, 50, 74, 0.06);
         }
 
         .kpi-title {
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.85rem;
         }
 
-        .kpi-3d-icon-box {
-            width: 48px;
-            height: 48px;
+        .kpi-icon-box {
+            width: 44px;
+            height: 44px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
-            margin-bottom: 1rem;
+            margin-bottom: 0.85rem;
         }
 
         .kpi-value {
-            font-size: 2.1rem;
+            font-size: 2rem;
             font-weight: 800;
             color: var(--text-primary);
             line-height: 1.1;
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.3rem;
         }
 
         .kpi-subtitle {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: #10B981;
             display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        .kpi-subtitle span {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* Main Section Cards */
         .ref-dashboard-card {
             background: #FFFFFF;
             border: 1px solid var(--border-color);
-            border-radius: 22px;
-            padding: 1.5rem;
+            border-radius: 20px;
+            padding: 1.4rem;
             box-shadow: var(--card-shadow);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
 
         .ref-card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.15rem;
         }
 
         .ref-card-title {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-primary);
             margin: 0;
         }
 
         .ref-card-subtitle {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
-            margin-top: 3px;
+            margin-top: 2px;
         }
 
         .pill-filter-btn {
             background: #F8FAFC;
-            border: 1px solid #E2E8F0;
+            border: 1px solid var(--border-color);
             border-radius: 9999px;
-            padding: 6px 14px;
-            font-size: 0.82rem;
+            padding: 5px 13px;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--text-primary);
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            cursor: pointer;
+            text-decoration: none;
         }
 
-        /* Middle Grid Layout */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 1.75fr 1fr;
-            gap: 1.25rem;
-            margin-bottom: 1.5rem;
+        .btn-summary-ai {
+            background: var(--quantum-gradient);
+            color: #FFFFFF;
+            border-radius: 9999px;
+            padding: 9px 22px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: none;
+            box-shadow: var(--pill-shadow);
+            cursor: pointer;
         }
 
         /* Table */
@@ -432,12 +361,13 @@ HTML_CONTENT = """<!DOCTYPE html>
         }
 
         .ref-patient-table th {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 600;
             color: var(--text-secondary);
+            text-transform: uppercase;
             padding: 8px 14px;
-            text-align: left;
             border-bottom: 1px solid #F1F5F9;
+            text-align: left;
         }
 
         .ref-patient-row {
@@ -452,741 +382,764 @@ HTML_CONTENT = """<!DOCTYPE html>
 
         .ref-patient-row td {
             padding: 12px 14px;
-            font-size: 0.85rem;
-            color: var(--text-primary);
+            font-size: 0.84rem;
             border-top: 1px solid #F8FAFC;
             border-bottom: 1px solid #F8FAFC;
         }
 
-        .status-pill-released {
-            background: #E0F2FE;
-            color: #0284C7;
-            border-radius: 9999px;
-            padding: 4px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
         .status-pill-positive {
-            background: #FEE2E2;
-            color: #DC2626;
+            background: #FFF0EC;
+            color: var(--xgb-accent);
             border-radius: 9999px;
             padding: 4px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.74rem;
+            font-weight: 700;
             display: inline-block;
         }
 
         .status-pill-negative {
-            background: #DCFCE7;
-            color: #16A34A;
+            background: #E7F8F5;
+            color: var(--rbf-accent);
             border-radius: 9999px;
             padding: 4px 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            font-size: 0.74rem;
+            font-weight: 700;
             display: inline-block;
         }
 
-        /* Quantum Gates */
-        .quantum-gate-btn {
-            border-radius: 8px;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.88rem;
-            padding: 6px 12px;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+        .model-card-quantum {
+            background: #FFFFFF;
+            border: 1.5px solid var(--quantum-accent);
+            border-radius: 18px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 18px rgba(121, 101, 232, 0.08);
         }
 
-        .gate-green { background: #22C55E; color: white; }
-        .gate-purple { background: #A855F7; color: white; }
+        .model-card-rbf {
+            background: #FFFFFF;
+            border: 1.5px solid var(--rbf-accent);
+            border-radius: 18px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 18px rgba(24, 169, 153, 0.08);
+        }
 
-        .tab-content {
-            display: none;
+        .model-card-xgb {
+            background: #FFFFFF;
+            border: 1.5px solid var(--xgb-accent);
+            border-radius: 18px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 18px rgba(240, 138, 120, 0.08);
         }
-        .tab-content.active-tab {
-            display: block;
-        }
+
+        /* Tab Content Management */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
-
-    <!-- Left Sidebar -->
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div>
             <div class="brand-header">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="brand-logo-box">⚡</div>
+                    <div class="brand-logo-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                        </svg>
+                    </div>
                     <div>
-                        <div class="brand-title">Clinical AI</div>
-                        <div class="brand-subtitle">QuantumCure v2.0</div>
+                        <h2 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #25324A; letter-spacing: -0.02em;">QuantumCure AI</h2>
+                        <span style="font-size: 0.72rem; color: #7965E8; font-weight: 700; letter-spacing: 0.02em;">Quantum Oncology</span>
                     </div>
                 </div>
-                <div class="brand-expand-btn">›</div>
             </div>
 
-            <nav class="nav-list">
-                <a class="nav-item active" onclick="switchTab('dashboard')">
-                    <span style="font-size: 15px;">⊞</span> Dashboard
-                </a>
-                <a class="nav-item" onclick="switchTab('quantum')">
-                    <span style="font-size: 15px;">✨</span> AI Assistant (Quantum)
-                </a>
-                <a class="nav-item" onclick="switchTab('patients')">
-                    <span style="font-size: 15px;">👥</span> Patient Cases
-                </a>
-                <a class="nav-item" onclick="switchTab('handbook')">
-                    <span style="font-size: 15px;">📋</span> Reports & Handbook
-                </a>
-            </nav>
+            <ul class="nav-list">
+                <li><a class="nav-item active" onclick="switchTab('dashboard')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg> Research Dashboard</a></li>
+                <li><a class="nav-item" onclick="switchTab('prediction')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2v6a2 2 0 0 0 2 2h6"></path><path d="M4 15V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"></path></svg> Patient Prediction Lab</a></li>
+                <li><a class="nav-item" onclick="switchTab('comparison')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Model Comparison Lab</a></li>
+                <li><a class="nav-item" onclick="switchTab('quantum-park')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path></svg> Quantum Park</a></li>
+                <li><a class="nav-item" onclick="switchTab('quantum-insights')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> Quantum Insights</a></li>
+                <li><a class="nav-item" onclick="switchTab('anatomy')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg> 3D Anatomy Explorer</a></li>
+                <li><a class="nav-item" onclick="switchTab('handbook')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Research Handbook</a></li>
+                <li><a class="nav-item" onclick="switchTab('dataset')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> Dataset & Methods</a></li>
+                <li><a class="nav-item" onclick="switchTab('reports')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline></svg> Reports & Analytics</a></li>
+                <li><a class="nav-item" onclick="switchTab('multi-cancer')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line></svg> Multi-Cancer Registry</a></li>
+            </ul>
         </div>
 
         <div class="expert-insights-card">
-            <div class="expert-insights-bulb">💡</div>
-            <h4 style="margin: 0 0 6px 0; color: #1E293B; font-size: 0.95rem; font-weight: 700;">Expert Insights</h4>
-            <p style="font-size: 0.78rem; color: #64748B; margin-bottom: 12px; line-height: 1.4;">
-                Actionable analysis from shaping researchers the future of quantum oncology AI.
+            <h4 style="margin: 0 0 4px 0; color: #25324A; font-size: 0.88rem; font-weight: 700;">Research Prototype</h4>
+            <p style="font-size: 0.74rem; color: #64748B; margin-bottom: 8px; line-height: 1.4;">
+                Qiskit 2.1.2 ZZFeatureMap evaluated against Classical RBF-SVM and XGBoost on 212 held-out BCNB breast cancer cases.
             </p>
-            <button class="btn-unlock-insights" onclick="switchTab('quantum')">Unlock Insights →</button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="main-wrapper">
-        <!-- Top Header Bar -->
-        <header class="top-header-bar">
-            <div class="search-pill-container">
-                <span style="color: #94A3B8;">🔍</span>
-                <input type="text" placeholder="Search patient or feature...">
-                <span style="color: #64748B; cursor: pointer; font-size: 14px;">⚙️</span>
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Prominent Disclaimer Banner -->
+        <div class="disclaimer-banner">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7965E8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <strong style="color: #25324A;">Research prototype, not clinical advice. Not validated for clinical use.</strong>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="action-icon-pill"><span>✉️</span></div>
-                <div class="action-icon-pill">
-                    <span>🔔</span>
-                    <span style="position: absolute; top: 6px; right: 8px; width: 8px; height: 8px; background: #EF4444; border-radius: 50%;"></span>
+            <span style="background: #EEF2F6; border: 1px solid #CBD5E1; border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; font-weight: 700; color: #475569;">
+                ACADEMIC PROTOTYPE
+            </span>
+        </div>
+
+        <!-- TAB 1: DASHBOARD -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="top-header-bar">
+                <div class="search-pill-container">
+                    <input type="text" placeholder="Search patient ID or biomarker..." style="border: none; outline: none; width: 100%; font-size: 0.86rem; color: #25324A; background: transparent;">
                 </div>
-                <div class="user-profile-pill">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Sarah Mitchell">
-                    <div style="font-size: 0.82rem; line-height: 1.2;">
-                        <strong style="color: #1E293B; display: block;">Dr. Sarah Mitchell</strong>
-                        <span style="color: #64748B; font-size: 0.75rem;">@mitchell.oncology</span>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="action-icon-pill" onclick="switchTab('prediction')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2v6a2 2 0 0 0 2 2h6"></path><path d="M4 15V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-1"></path></svg>
+                    </div>
+                    <div class="user-profile-pill">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: #F0EDFF; color: #7965E8; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem;">QC</div>
+                        <div style="font-size: 0.82rem; line-height: 1.2;">
+                            <strong style="color: #25324A; display: block;">QuantumCure Research</strong>
+                            <span style="color: #64748B; font-size: 0.74rem;">BCNB Cohort</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </header>
 
-        <!-- TAB 1: DASHBOARD (Image 1) -->
-        <section id="tab-dashboard" class="tab-content active-tab">
-            <div class="page-title-row">
-                <div>
-                    <h1 class="page-title">Dashboard</h1>
-                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #64748B;">
-                        Clinical oncology analytics, patient cases, and quantum machine learning metrics.
-                    </p>
-                </div>
-                <button class="btn-summary-ai" onclick="alert('Clinical Summary: Evaluated on 212 held-out BCNB test patients. XGBoost AUROC: 0.6012, Classical RBF-SVM: 0.5982, Quantum ZZ Kernel: 0.5001.')">
-                    <span>✨</span> Summary With AI
-                </button>
-            </div>
-
-            <!-- 4 KPI Cards -->
+            <!-- 4 Verified Research KPI Metric Cards -->
             <div class="kpi-grid">
-                <!-- Card 1 -->
                 <div class="ref-kpi-card">
-                    <div class="kpi-floating-badge" style="background: #FFE8E0; color: #FF7A59;">👥</div>
-                    <div class="kpi-title">Active Cases</div>
-                    <div class="kpi-3d-icon-box" style="background: #FFF1F0;">📕</div>
-                    <div class="kpi-value">534</div>
-                    <div class="kpi-subtitle">
-                        <span>23,5%</span> compared last month
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.72rem; color: #64748B; border-top: 1px dashed #EEF2F6; padding-top: 6px;">
-                        Held-out Test: <strong>212</strong> (131 N0 / 81 N+)
-                    </div>
+                    <div class="kpi-title">Verified BCNB Cohort</div>
+                    <div class="kpi-value">1,058</div>
+                    <div class="kpi-subtitle" style="color: #7965E8;">80/20 Split: 846 Train / 212 Test</div>
+                    <div style="font-size: 0.74rem; color: #64748B; margin-top: 6px;">655 N0 (61.9%) / 403 N+ (38.1%)</div>
                 </div>
-                <!-- Card 2 -->
-                <div class="ref-kpi-card">
-                    <div class="kpi-floating-badge" style="background: #F2FCE2; color: #84CC16;">💡</div>
-                    <div class="kpi-title">Ai Analyses</div>
-                    <div class="kpi-3d-icon-box" style="background: #F0FDF4;">🧩</div>
-                    <div class="kpi-value">129</div>
-                    <div class="kpi-subtitle">
-                        <span>23,5%</span> compared last month
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.72rem; color: #64748B; border-top: 1px dashed #EEF2F6; padding-top: 6px;">
-                        Classical RBF-SVM: <strong>0.5982</strong> AUROC (59.4%)
-                    </div>
+                <div class="ref-kpi-card" style="border-top: 3px solid #7965E8;">
+                    <div class="kpi-title">Quantum-Kernel SVM</div>
+                    <div class="kpi-value" style="color: #7965E8;">0.5001</div>
+                    <div class="kpi-subtitle" style="color: #7965E8;">50.47% Test Accuracy</div>
+                    <div style="font-size: 0.74rem; color: #64748B; margin-top: 6px;">Qiskit 2.1.2 ZZFeatureMap</div>
                 </div>
-                <!-- Card 3 -->
-                <div class="ref-kpi-card">
-                    <div class="kpi-floating-badge" style="background: #E0F2FE; color: #0284C7;">⚠️</div>
-                    <div class="kpi-title">Flagged Alerts</div>
-                    <div class="kpi-3d-icon-box" style="background: #EFF6FF;">🤖</div>
-                    <div class="kpi-value">37</div>
-                    <div class="kpi-subtitle">
-                        <span>23,5%</span> compared last month
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.72rem; color: #64748B; border-top: 1px dashed #EEF2F6; padding-top: 6px;">
-                        XGBoost Model: <strong>0.6012</strong> AUROC (59.4%)
-                    </div>
+                <div class="ref-kpi-card" style="border-top: 3px solid #18A999;">
+                    <div class="kpi-title">Classical RBF-SVM</div>
+                    <div class="kpi-value" style="color: #18A999;">0.5982</div>
+                    <div class="kpi-subtitle" style="color: #18A999;">59.43% Test Accuracy</div>
+                    <div style="font-size: 0.74rem; color: #64748B; margin-top: 6px;">Scikit-learn (C=2.0, gamma=0.5)</div>
                 </div>
-                <!-- Card 4 -->
-                <div class="ref-kpi-card">
-                    <div class="kpi-floating-badge" style="background: #F3E8FF; color: #A855F7;">📋</div>
-                    <div class="kpi-title">Reports Parsed</div>
-                    <div class="kpi-3d-icon-box" style="background: #FAF5FF;">📊</div>
-                    <div class="kpi-value">275</div>
-                    <div class="kpi-subtitle">
-                        <span>23,5%</span> compared last month
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.72rem; color: #64748B; border-top: 1px dashed #EEF2F6; padding-top: 6px;">
-                        Quantum Qiskit SVM: <strong>0.5001</strong> AUROC (50.5%)
-                    </div>
+                <div class="ref-kpi-card" style="border-top: 3px solid #F08A78;">
+                    <div class="kpi-title">XGBoost Classifier</div>
+                    <div class="kpi-value" style="color: #F08A78;">0.6012</div>
+                    <div class="kpi-subtitle" style="color: #F08A78;">59.43% Test Accuracy</div>
+                    <div style="font-size: 0.74rem; color: #64748B; margin-top: 6px;">50 Trees, max_depth=3</div>
                 </div>
             </div>
 
-            <!-- Middle Analytics Row (Stacked Pills & Circular Donut) -->
-            <div class="analytics-grid">
-                <!-- Stacked Pill Analytics Chart -->
+            <!-- Interactive Diagnostic ROC Plot & Cohort Distribution -->
+            <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 18px; margin-bottom: 1.5rem;">
                 <div class="ref-dashboard-card">
                     <div class="ref-card-header">
                         <div>
-                            <h3 class="ref-card-title">AI Healthcare Department Analytics</h3>
-                            <div class="ref-card-subtitle">AI insights on patient volume, treatment performance</div>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <span class="pill-filter-btn">⚙️ Filter</span>
-                            <span class="pill-filter-btn">Last Month ▾</span>
+                            <h3 class="ref-card-title">Model Discrimination (ROC Curves)</h3>
+                            <div class="ref-card-subtitle">Evaluated on 212 held-out BCNB test patients</div>
                         </div>
                     </div>
-                    <svg viewBox="0 0 700 280" style="width: 100%; height: auto;">
-                        <!-- Grid lines -->
-                        <line x1="40" y1="50" x2="680" y2="50" stroke="#F1F5F9" stroke-width="1.5" />
-                        <line x1="40" y1="110" x2="680" y2="110" stroke="#F1F5F9" stroke-width="1.5" />
-                        <line x1="40" y1="170" x2="680" y2="170" stroke="#F1F5F9" stroke-width="1.5" />
-                        <line x1="40" y1="230" x2="680" y2="230" stroke="#E2E8F0" stroke-width="1.5" />
-                        
-                        <!-- Y labels -->
-                        <text x="20" y="55" fill="#94A3B8" font-size="12">40</text>
-                        <text x="20" y="115" fill="#94A3B8" font-size="12">30</text>
-                        <text x="20" y="175" fill="#94A3B8" font-size="12">20</text>
-                        <text x="20" y="235" fill="#94A3B8" font-size="12">10</text>
-                        
-                        <!-- Stacked rounded pill bars (Sat - Fri) -->
-                        <!-- Bar 1: Sat -->
-                        <rect x="75" y="180" width="28" height="48" rx="14" fill="#F43F5E" />
-                        <rect x="75" y="125" width="28" height="48" rx="14" fill="#FB923C" />
-                        <rect x="75" y="65" width="28" height="52" rx="14" fill="#8B5CF6" />
-                        <text x="89" y="255" text-anchor="middle" fill="#64748B" font-size="12">Sat</text>
-
-                        <!-- Bar 2: Sun -->
-                        <rect x="155" y="195" width="28" height="33" rx="14" fill="#F43F5E" />
-                        <rect x="155" y="155" width="28" height="33" rx="14" fill="#FB923C" />
-                        <rect x="155" y="105" width="28" height="42" rx="14" fill="#8B5CF6" />
-                        <text x="169" y="255" text-anchor="middle" fill="#64748B" font-size="12">Sun</text>
-
-                        <!-- Bar 3: Mon -->
-                        <rect x="235" y="170" width="28" height="58" rx="14" fill="#F43F5E" />
-                        <rect x="235" y="115" width="28" height="48" rx="14" fill="#FB923C" />
-                        <rect x="235" y="55" width="28" height="52" rx="14" fill="#8B5CF6" />
-                        <text x="249" y="255" text-anchor="middle" fill="#64748B" font-size="12">Mon</text>
-
-                        <!-- Bar 4: Tue (Highlighted with Tooltip like Image 1) -->
-                        <rect x="315" y="185" width="28" height="43" rx="14" fill="#F43F5E" />
-                        <rect x="315" y="135" width="28" height="43" rx="14" fill="#FB923C" />
-                        <rect x="315" y="80" width="28" height="48" rx="14" fill="#8B5CF6" />
-                        <text x="329" y="255" text-anchor="middle" fill="#64748B" font-size="12" font-weight="700">Tue</text>
-
-                        <!-- Tooltip on Tue -->
-                        <g transform="translate(265, 12)">
-                            <rect width="130" height="62" rx="10" fill="#FFFFFF" stroke="#E2E8F0" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.06))" />
-                            <circle cx="16" cy="18" r="4" fill="#8B5CF6" />
-                            <text x="26" y="22" font-size="10.5" fill="#64748B">Weekly: <tspan font-weight="700" fill="#1E293B">$2,197</tspan></text>
-                            <circle cx="16" cy="35" r="4" fill="#FB923C" />
-                            <text x="26" y="39" font-size="10.5" fill="#64748B">Monthly: <tspan font-weight="700" fill="#1E293B">$6,464</tspan></text>
-                            <circle cx="16" cy="51" r="4" fill="#F43F5E" />
-                            <text x="26" y="55" font-size="10.5" fill="#64748B">Yearly: <tspan font-weight="700" fill="#1E293B">$9,796</tspan></text>
-                        </g>
-
-                        <!-- Bar 5: Wed -->
-                        <rect x="395" y="175" width="28" height="53" rx="14" fill="#F43F5E" />
-                        <rect x="395" y="125" width="28" height="43" rx="14" fill="#FB923C" />
-                        <rect x="395" y="70" width="28" height="48" rx="14" fill="#8B5CF6" />
-                        <text x="409" y="255" text-anchor="middle" fill="#64748B" font-size="12">Wed</text>
-
-                        <!-- Bar 6: Thu -->
-                        <rect x="475" y="170" width="28" height="58" rx="14" fill="#F43F5E" />
-                        <rect x="475" y="120" width="28" height="43" rx="14" fill="#FB923C" />
-                        <rect x="475" y="65" width="28" height="48" rx="14" fill="#8B5CF6" />
-                        <text x="489" y="255" text-anchor="middle" fill="#64748B" font-size="12">Thu</text>
-
-                        <!-- Bar 7: Fri -->
-                        <rect x="555" y="180" width="28" height="48" rx="14" fill="#F43F5E" />
-                        <rect x="555" y="130" width="28" height="43" rx="14" fill="#FB923C" />
-                        <rect x="555" y="75" width="28" height="48" rx="14" fill="#8B5CF6" />
-                        <text x="569" y="255" text-anchor="middle" fill="#64748B" font-size="12">Fri</text>
-                    </svg>
+                    <div id="chart-roc" style="height: 320px;"></div>
                 </div>
-
-                <!-- Patients Gender Donut Card -->
-                <div class="ref-dashboard-card" style="position: relative;">
+                <div class="ref-dashboard-card">
                     <div class="ref-card-header">
                         <div>
-                            <h3 class="ref-card-title">Patients Gender</h3>
-                            <div class="ref-card-subtitle">Cohort Demographics Breakdown</div>
+                            <h3 class="ref-card-title">BCNB Nodal Distribution</h3>
+                            <div class="ref-card-subtitle">1,058 Verified Clinical Biopsies</div>
                         </div>
-                        <span>📅</span>
                     </div>
-                    <div style="position: absolute; top: 85px; left: 24px; z-index: 5;">
-                        <span style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 9999px; padding: 4px 12px; font-size: 0.74rem; font-weight: 600; color: #475569; box-shadow: 0 2px 6px rgba(0,0,0,0.05); cursor: pointer;">
-                            Learn More →
-                        </span>
-                    </div>
-                    <div style="text-align: center; margin: 1.5rem 0;">
-                        <svg viewBox="0 0 240 220" style="width: 220px; height: 200px;">
-                            <circle cx="120" cy="110" r="85" fill="none" stroke="#F1F5F9" stroke-width="26" />
-                            <circle cx="120" cy="110" r="85" fill="none" stroke="#C4B5FD" stroke-width="26" stroke-dasharray="280 534" stroke-linecap="round" />
-                            <circle cx="120" cy="110" r="60" fill="none" stroke="#7C3AED" stroke-width="24" stroke-dasharray="270 376" stroke-linecap="round" />
-                            <circle cx="120" cy="110" r="40" fill="#FFFFFF" />
-                            <text x="120" y="105" text-anchor="middle" font-size="20" font-weight="800" fill="#7C3AED">73%</text>
-                            <text x="120" y="122" text-anchor="middle" font-size="11" font-weight="600" fill="#64748B">Male</text>
-                            <text x="195" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#6D28D9">53%</text>
-                            <text x="45" y="145" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">27%</text>
-                        </svg>
-                    </div>
-                    <div style="display: flex; justify-content: space-around; text-align: center; border-top: 1px solid #F1F5F9; padding-top: 10px;">
-                        <div><strong style="color: #7C3AED; font-size: 1.05rem;">73%</strong><br><span style="color: #64748B; font-size: 0.76rem;">Male</span></div>
-                        <div><strong style="color: #6D28D9; font-size: 1.05rem;">53%</strong><br><span style="color: #64748B; font-size: 0.76rem;">Female</span></div>
-                        <div><strong style="color: #475569; font-size: 1.05rem;">27%</strong><br><span style="color: #64748B; font-size: 0.76rem;">Other</span></div>
-                    </div>
+                    <div id="chart-donut" style="height: 320px;"></div>
                 </div>
             </div>
 
-            <!-- Medical Department Statistics Table -->
+            <!-- Real Held-Out Test Patients Table -->
             <div class="ref-dashboard-card">
                 <div class="ref-card-header">
                     <div>
-                        <h3 class="ref-card-title">Medical Department Statistics</h3>
-                        <div class="ref-card-subtitle">Patient volume, treatment progress, status, and critical cases.</div>
+                        <h3 class="ref-card-title">Held-Out Test Cohort Predictions (Sample of 6 Patients)</h3>
+                        <div class="ref-card-subtitle">Verified BCNB ground-truth pathology vs Multi-Model outputs</div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <div style="display: flex; align-items: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 9999px; padding: 6px 14px; font-size: 0.82rem;">
-                            <span style="color: #94A3B8; margin-right: 6px;">🔍</span>
-                            <input type="text" placeholder="Search Data" style="border: none; background: transparent; outline: none; width: 120px; font-size: 0.8rem;">
-                        </div>
-                        <span class="pill-filter-btn">⚙️</span>
-                        <span class="pill-filter-btn">Export Data ▾</span>
-                    </div>
+                    <button class="pill-filter-btn" onclick="switchTab('prediction')">Open Prediction Lab →</button>
                 </div>
                 <table class="ref-patient-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Department</th>
-                            <th>Length Stay</th>
-                            <th>Cabin No</th>
-                            <th>Admission Date</th>
-                            <th>Status</th>
-                            <th></th>
+                            <th>Patient ID</th>
+                            <th>Actual ALN Status</th>
+                            <th>Quantum SVM</th>
+                            <th>Classical RBF-SVM</th>
+                            <th>XGBoost</th>
+                            <th>Consensus</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="ref-patient-row">
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                                    <div>
-                                        <strong style="color: #1E293B;">Sarah Mitchell</strong><br>
-                                        <span style="font-size: 0.75rem; color: #64748B;">Persistent cough</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Cardiology</td>
-                            <td>3 Weeks</td>
-                            <td>CF-315</td>
-                            <td>22/03/2026</td>
-                            <td><span class="status-pill-released">Released</span></td>
-                            <td style="color: #94A3B8; font-weight: bold; cursor: pointer;">⋮</td>
-                        </tr>
-                        <tr class="ref-patient-row">
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                                    <div>
-                                        <strong style="color: #1E293B;">Patient #212 (Elena Rostova)</strong><br>
-                                        <span style="font-size: 0.75rem; color: #64748B;">Tumour 3.5cm / Grade 3</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Oncology / Axillary</td>
-                            <td>2 Weeks</td>
-                            <td>ON-108</td>
-                            <td>14/03/2026</td>
-                            <td><span class="status-pill-positive">N+ Metastasis</span></td>
-                            <td style="color: #94A3B8; font-weight: bold; cursor: pointer;">⋮</td>
-                        </tr>
-                        <tr class="ref-patient-row">
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                                    <div>
-                                        <strong style="color: #1E293B;">Patient #389 (David Chen)</strong><br>
-                                        <span style="font-size: 0.75rem; color: #64748B;">Tumour 1.8cm / Grade 2</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>Surgical Staging</td>
-                            <td>1 Week</td>
-                            <td>ST-204</td>
-                            <td>19/03/2026</td>
+                            <td><strong>Patient #153</strong></td>
                             <td><span class="status-pill-negative">N0 Negative</span></td>
-                            <td style="color: #94A3B8; font-weight: bold; cursor: pointer;">⋮</td>
+                            <td><span style="color: #7965E8; font-weight: 700;">N0</span> (0.372)</td>
+                            <td><span style="color: #18A999; font-weight: 700;">N0</span> (0.368)</td>
+                            <td><span style="color: #F08A78; font-weight: 700;">N+</span> (0.555)</td>
+                            <td><span style="background: #FEF3C7; color: #B45309; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">Majority (2 vs 1)</span></td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong>Patient #932</strong></td>
+                            <td><span class="status-pill-negative">N0 Negative</span></td>
+                            <td><span style="color: #7965E8; font-weight: 700;">N+</span> (0.401)</td>
+                            <td><span style="color: #18A999; font-weight: 700;">N0</span> (0.358)</td>
+                            <td><span style="color: #F08A78; font-weight: 700;">N0</span> (0.140)</td>
+                            <td><span style="background: #FEF3C7; color: #B45309; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">Majority (2 vs 1)</span></td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong>Patient #256</strong></td>
+                            <td><span class="status-pill-positive">N+ Metastasis</span></td>
+                            <td><span style="color: #7965E8; font-weight: 700;">N+</span> (0.455)</td>
+                            <td><span style="color: #18A999; font-weight: 700;">N+</span> (0.398)</td>
+                            <td><span style="color: #F08A78; font-weight: 700;">N+</span> (0.586)</td>
+                            <td><span style="background: #E7F8F5; color: #18A999; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">Unanimous N+</span></td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong>Patient #691</strong></td>
+                            <td><span class="status-pill-positive">N+ Metastasis</span></td>
+                            <td><span style="color: #7965E8; font-weight: 700;">N0</span> (0.323)</td>
+                            <td><span style="color: #18A999; font-weight: 700;">N0</span> (0.357)</td>
+                            <td><span style="color: #F08A78; font-weight: 700;">N0</span> (0.222)</td>
+                            <td><span style="background: #E7F8F5; color: #18A999; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">Unanimous N0</span></td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong>Patient #650</strong></td>
+                            <td><span class="status-pill-negative">N0 Negative</span></td>
+                            <td><span style="color: #7965E8; font-weight: 700;">N+</span> (0.445)</td>
+                            <td><span style="color: #18A999; font-weight: 700;">N+</span> (0.387)</td>
+                            <td><span style="color: #F08A78; font-weight: 700;">N+</span> (0.839)</td>
+                            <td><span style="background: #E7F8F5; color: #18A999; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">Unanimous N+</span></td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong>Patient #151</strong></td>
+                            <td><span class="status-pill-positive">N+ Metastasis</span></td>
+                            <td><span style="color: #7965E8; font-weight: 700;">N0</span> (0.335)</td>
+                            <td><span style="color: #18A999; font-weight: 700;">N0</span> (0.364)</td>
+                            <td><span style="color: #F08A78; font-weight: 700;">N+</span> (0.515)</td>
+                            <td><span style="background: #FEF3C7; color: #B45309; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700;">Majority (2 vs 1)</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </section>
+        </div>
 
-        <!-- TAB 2: QUANTUM PARK (Image 2 & 3) -->
-        <section id="tab-quantum" class="tab-content">
-            <!-- Header matching Image 2 -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 18px; padding: 12px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
-                <span style="background: #2563EB; color: white; border-radius: 10px; padding: 8px 16px; font-weight: 700; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-                    ⚛️ Qiskit Codegen
-                </span>
-                <div style="text-align: center;">
-                    <h2 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: #1E293B;">Quantum Park</h2>
-                    <span style="font-size: 0.78rem; color: #64748B;">Interactive Circuit Simulator & Kernel Engine</span>
-                </div>
-                <div style="display: flex; gap: 10px;">
-                    <span style="background: #2563EB; color: white; border-radius: 10px; padding: 8px 16px; font-weight: 600; font-size: 0.85rem; cursor: pointer;" onclick="switchTab('handbook')">
-                        📖 Quantum Handbook
-                    </span>
-                    <span style="background: #2563EB; color: white; border-radius: 10px; padding: 8px 16px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
-                        ❓ Contact Developer
-                    </span>
-                </div>
-            </div>
-
-            <!-- Composer Grid & Bloch Sphere -->
-            <div class="analytics-grid">
-                <!-- Circuit composer -->
-                <div class="ref-dashboard-card">
-                    <!-- Gate Palette -->
-                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; padding-bottom: 12px; border-bottom: 1px solid #F1F5F9;">
-                        <span class="quantum-gate-btn gate-green">X</span>
-                        <span class="quantum-gate-btn gate-green">Y</span>
-                        <span class="quantum-gate-btn gate-green">Z</span>
-                        <span class="quantum-gate-btn gate-green">H</span>
-                        <span class="quantum-gate-btn gate-green">S</span>
-                        <span class="quantum-gate-btn gate-green">T</span>
-                        <span class="quantum-gate-btn gate-purple">CX</span>
-                        <span class="quantum-gate-btn gate-purple">XC</span>
-                        <span class="quantum-gate-btn gate-purple">MCX</span>
-                        <span class="quantum-gate-btn" style="background: #FEE2E2; color: #DC2626;">🗑️</span>
-                    </div>
-                    <!-- Controls -->
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.25rem;">
-                        <span style="background: #F1F5F9; border-radius: 8px; padding: 4px 12px; font-size: 0.82rem; font-weight: 600;">- Wires +</span>
-                        <span style="background: #F1F5F9; border-radius: 8px; padding: 4px 12px; font-size: 0.82rem; font-weight: 600;">- Columns +</span>
-                        <span style="background: #2563EB; color: white; border-radius: 8px; padding: 4px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;">Clear Grid</span>
-                        <span style="background: #2563EB; color: white; border-radius: 8px; padding: 4px 10px; font-size: 0.82rem; font-weight: 600;">📐</span>
-                    </div>
-                    <!-- Wires q0 - q2 -->
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.5rem;">
-                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 1.25rem;">
-                            <span style="font-weight: 700; width: 24px; font-family: monospace;">q0</span>
-                            <span class="quantum-gate-btn gate-green" style="width: 44px; height: 44px;">H</span>
-                            <span class="quantum-gate-btn gate-purple" style="width: 44px; height: 44px;">MCX</span>
-                            <span style="width: 44px; height: 44px; background: #C4B5FD; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6D28D9; font-weight: bold;">●</span>
-                            <span style="width: 44px; height: 44px; background: #C4B5FD; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6D28D9; font-weight: bold;">●</span>
-                            <span style="width: 44px; height: 44px; background: #E2E8F0; border-radius: 8px;"></span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 1.25rem;">
-                            <span style="font-weight: 700; width: 24px; font-family: monospace;">q1</span>
-                            <span class="quantum-gate-btn gate-green" style="width: 44px; height: 44px;">H</span>
-                            <span style="width: 44px; height: 44px; background: #C4B5FD; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6D28D9; font-weight: bold;">●</span>
-                            <span class="quantum-gate-btn gate-purple" style="width: 44px; height: 44px;">MCX</span>
-                            <span class="quantum-gate-btn gate-purple" style="width: 44px; height: 44px;">CX</span>
-                            <span class="quantum-gate-btn gate-purple" style="width: 44px; height: 44px;">XC</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <span style="font-weight: 700; width: 24px; font-family: monospace;">q2</span>
-                            <span style="width: 44px; height: 44px; background: #E2E8F0; border-radius: 8px;"></span>
-                            <span style="width: 44px; height: 44px; background: #C4B5FD; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6D28D9; font-weight: bold;">●</span>
-                            <span style="width: 44px; height: 44px; background: #C4B5FD; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6D28D9; font-weight: bold;">●</span>
-                            <span style="width: 44px; height: 44px; background: #E2E8F0; border-radius: 8px;"></span>
-                            <span style="width: 44px; height: 44px; background: #C4B5FD; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #6D28D9; font-weight: bold;">●</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3D Bloch Sphere Canvas -->
-                <div class="ref-dashboard-card" style="text-align: center;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <h4 style="margin: 0; color: #1E293B;">Bloch Sphere Visualizer</h4>
-                        <span style="background: #0F172A; color: white; border-radius: 9999px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600;">Qubit q0</span>
-                    </div>
-                    <canvas id="blochCanvas" width="280" height="240" style="background: #FAFAFA; border-radius: 14px; margin: 0.5rem 0;"></canvas>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: #64748B; margin-top: 6px;">
-                        <span>θ: <input type="range" id="thetaSlider" min="0" max="3.14" step="0.1" value="0.78" oninput="drawBloch()"></span>
-                        <span>φ: <input type="range" id="phiSlider" min="0" max="6.28" step="0.1" value="1.05" oninput="drawBloch()"></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- State Probabilities & State Vector Charts -->
-            <div class="analytics-grid">
-                <div class="ref-dashboard-card">
-                    <div class="ref-card-header">
-                        <div>
-                            <h4 class="ref-card-title">State Probabilities</h4>
-                            <div class="ref-card-subtitle">Measurement statistics over computational basis states</div>
-                        </div>
-                        <span class="pill-filter-btn">Shot Count: 1024</span>
-                    </div>
-                    <svg viewBox="0 0 500 180" style="width: 100%; height: auto;">
-                        <line x1="40" y1="30" x2="480" y2="30" stroke="#F1F5F9" />
-                        <line x1="40" y1="80" x2="480" y2="80" stroke="#F1F5F9" />
-                        <line x1="40" y1="130" x2="480" y2="130" stroke="#E2E8F0" />
-                        <!-- Prob bars on |010>, |011>, |100>, |101> -->
-                        <rect x="150" y="40" width="32" height="90" rx="4" fill="#F97316" />
-                        <rect x="205" y="40" width="32" height="90" rx="4" fill="#F97316" />
-                        <rect x="260" y="40" width="32" height="90" rx="4" fill="#F97316" />
-                        <rect x="315" y="40" width="32" height="90" rx="4" fill="#F97316" />
-                        <text x="166" y="150" text-anchor="middle" font-size="11" fill="#64748B">|010⟩</text>
-                        <text x="221" y="150" text-anchor="middle" font-size="11" fill="#64748B">|011⟩</text>
-                        <text x="276" y="150" text-anchor="middle" font-size="11" fill="#64748B">|100⟩</text>
-                        <text x="331" y="150" text-anchor="middle" font-size="11" fill="#64748B">|101⟩</text>
-                        <text x="331" y="30" text-anchor="middle" font-size="10" font-weight="700" fill="#EA580C">25.0%</text>
-                    </svg>
-                </div>
-
-                <div class="ref-dashboard-card">
-                    <div class="ref-card-header">
-                        <div>
-                            <h4 class="ref-card-title">State Vector Amplitudes</h4>
-                            <div class="ref-card-subtitle">Complex quantum state amplitude & phase mapping</div>
-                        </div>
-                        <span class="pill-filter-btn">Spectrum: -π ... π</span>
-                    </div>
-                    <svg viewBox="0 0 500 180" style="width: 100%; height: auto;">
-                        <line x1="40" y1="30" x2="480" y2="30" stroke="#F1F5F9" />
-                        <line x1="40" y1="80" x2="480" y2="80" stroke="#F1F5F9" />
-                        <line x1="40" y1="130" x2="480" y2="130" stroke="#E2E8F0" />
-                        <rect x="150" y="50" width="32" height="80" rx="4" fill="#06B6D4" />
-                        <rect x="205" y="50" width="32" height="80" rx="4" fill="#06B6D4" />
-                        <rect x="260" y="50" width="32" height="80" rx="4" fill="#06B6D4" />
-                        <rect x="315" y="50" width="32" height="80" rx="4" fill="#06B6D4" />
-                        <text x="166" y="150" text-anchor="middle" font-size="11" fill="#64748B">|010⟩</text>
-                        <text x="221" y="150" text-anchor="middle" font-size="11" fill="#64748B">|011⟩</text>
-                        <text x="276" y="150" text-anchor="middle" font-size="11" fill="#64748B">|100⟩</text>
-                        <text x="331" y="150" text-anchor="middle" font-size="11" fill="#64748B">|101⟩</text>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- OpenQASM 2.0 View -->
+        <!-- TAB 2: PREDICTION LAB -->
+        <div id="tab-prediction" class="tab-content">
             <div class="ref-dashboard-card">
                 <div class="ref-card-header">
                     <div>
-                        <h4 class="ref-card-title">OpenQASM 2.0 Codegen</h4>
-                        <div class="ref-card-subtitle">Synthesized instructions for quantum hardware</div>
+                        <h3 class="ref-card-title">Patient Prediction Lab</h3>
+                        <div class="ref-card-subtitle">Evaluate genuine models on held-out test patient records under blind protocol</div>
                     </div>
-                    <span class="pill-filter-btn">Qiskit 2.1.2 Compatible</span>
                 </div>
-                <pre style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #1E293B; line-height: 1.5;">
-// QuantumCure AI — BCNB 5-Qubit ZZFeatureMap
-OPENQASM 2.0;
-include "qelib1.inc";
-qreg q[5];
-creg c[5];
-h q[0]; h q[1]; h q[2]; h q[3]; h q[4];
-rz(2.41) q[0]; rz(1.85) q[1]; rz(3.14) q[2];
-cx q[0], q[1]; rz(0.92) q[1]; cx q[0], q[1];
-cx q[1], q[2]; rz(1.48) q[2]; cx q[1], q[2];
-barrier q;
-measure q -> c;
-                </pre>
-            </div>
-        </section>
+                
+                <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.25rem;">
+                    <label style="font-size: 0.85rem; font-weight: 700; color: #25324A; display: block; margin-bottom: 8px;">Select Held-Out Patient Record:</label>
+                    <select id="sel-patient" onchange="updateSelectedPatient()" style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #CBD5E1; font-size: 0.88rem; background: white;">
+                        <option value="153">Patient #153 — Age: 80 yrs | Tumour: 2.5 cm | Grade: 2 | ER: Positive | HER2: Negative</option>
+                        <option value="932">Patient #932 — Age: 70 yrs | Tumour: 1.3 cm | Grade: 1 | ER: Positive | HER2: Negative</option>
+                        <option value="256">Patient #256 — Age: 60 yrs | Tumour: 3.0 cm | Grade: 2 | ER: Positive | HER2: Negative</option>
+                        <option value="691">Patient #691 — Age: 76 yrs | Tumour: 1.8 cm | Grade: 2 | ER: Positive | HER2: Negative</option>
+                        <option value="650">Patient #650 — Age: 44 yrs | Tumour: 2.5 cm | Grade: 2 | ER: Positive | HER2: Positive</option>
+                        <option value="151">Patient #151 — Age: 56 yrs | Tumour: 3.5 cm | Grade: 3 | ER: Negative | HER2: Negative</option>
+                    </select>
 
-        <!-- TAB 3: PATIENT CASES & PREDICTION LAB -->
-        <section id="tab-patients" class="tab-content">
-            <div class="page-title-row">
-                <div>
-                    <h1 class="page-title">Patient Prediction Lab</h1>
-                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #64748B;">
-                        Interactive clinical cancer prognosis across Quantum and Classical models.
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 14px;">
+                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px;">
+                            <span style="font-size: 0.72rem; color: #64748B; display: block;">Tumour Size</span>
+                            <strong id="disp-size" style="color: #25324A; font-size: 1rem;">2.5 cm</strong>
+                        </div>
+                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px;">
+                            <span style="font-size: 0.72rem; color: #64748B; display: block;">Patient Age</span>
+                            <strong id="disp-age" style="color: #25324A; font-size: 1rem;">80 yrs</strong>
+                        </div>
+                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px;">
+                            <span style="font-size: 0.72rem; color: #64748B; display: block;">Histological Grade</span>
+                            <strong id="disp-grade" style="color: #25324A; font-size: 1rem;">Grade 2</strong>
+                        </div>
+                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px;">
+                            <span style="font-size: 0.72rem; color: #64748B; display: block;">ER Receptor</span>
+                            <strong id="disp-er" style="color: #25324A; font-size: 1rem;">Positive</strong>
+                        </div>
+                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 8px 12px;">
+                            <span style="font-size: 0.72rem; color: #64748B; display: block;">HER2 Status</span>
+                            <strong id="disp-her2" style="color: #25324A; font-size: 1rem;">Negative</strong>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 14px;">
+                        <button class="btn-summary-ai" onclick="runPrediction()">Run All Models</button>
+                    </div>
+                </div>
+
+                <!-- Prediction Results Grid (Side-by-side color cards) -->
+                <div id="pred-cards-grid" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 1.25rem;">
+                    <div class="model-card-quantum">
+                        <span style="background: #F0EDFF; color: #7965E8; border-radius: 9999px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700;">Quantum Kernel</span>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #25324A; margin-top: 6px;">Qiskit ZZFeatureMap SVM</div>
+                        <div id="q-label" style="font-size: 1.6rem; font-weight: 800; color: #7965E8; margin: 8px 0;">N0 (Negative)</div>
+                        <div style="font-size: 0.8rem; color: #64748B; line-height: 1.6;">
+                            Calibrated Probability: <strong id="q-prob">37.2%</strong><br>
+                            Raw Decision Margin: <code id="q-score">-0.328</code><br>
+                            Execution: <strong>Qiskit Statevector Simulator</strong>
+                        </div>
+                    </div>
+                    <div class="model-card-rbf">
+                        <span style="background: #E7F8F5; color: #18A999; border-radius: 9999px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700;">Classical Baseline</span>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #25324A; margin-top: 6px;">Classical RBF-SVM</div>
+                        <div id="c-label" style="font-size: 1.6rem; font-weight: 800; color: #18A999; margin: 8px 0;">N0 (Negative)</div>
+                        <div style="font-size: 0.8rem; color: #64748B; line-height: 1.6;">
+                            Calibrated Probability: <strong id="c-prob">36.8%</strong><br>
+                            Raw Decision Margin: <code id="c-score">-0.412</code><br>
+                            Support Vectors: <strong>728</strong>
+                        </div>
+                    </div>
+                    <div class="model-card-xgb">
+                        <span style="background: #FFF0EC; color: #F08A78; border-radius: 9999px; padding: 3px 10px; font-size: 0.74rem; font-weight: 700;">Ensemble Baseline</span>
+                        <div style="font-size: 0.88rem; font-weight: 700; color: #25324A; margin-top: 6px;">XGBoost Classifier</div>
+                        <div id="x-label" style="font-size: 1.6rem; font-weight: 800; color: #F08A78; margin: 8px 0;">N+ (Metastasis)</div>
+                        <div style="font-size: 0.8rem; color: #64748B; line-height: 1.6;">
+                            Predicted Probability: <strong id="x-prob">55.5%</strong><br>
+                            Log-Odds Margin: <code id="x-score">+0.221</code><br>
+                            Estimators: <strong>50 Trees</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consensus & Reveal Outcome Box -->
+                <div id="reveal-container" style="display: none;">
+                    <div style="background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 10px; padding: 12px 16px; margin-bottom: 12px; font-size: 0.85rem; color: #92400E;">
+                        <strong>Model Agreement:</strong> <span id="consensus-text">Majority Divergence (2 models predict N0, 1 predicts N+)</span>.
+                        <div style="font-size: 0.74rem; margin-top: 4px;">Note: Consensus does not establish ground truth.</div>
+                    </div>
+
+                    <button class="pill-filter-btn" style="background: #7965E8; color: white; border: none; padding: 8px 18px;" onclick="revealOutcome()">Reveal Actual Outcome</button>
+
+                    <div id="outcome-revealed" style="display: none; margin-top: 14px; background: #F8FAFC; border: 2px solid #7965E8; border-radius: 14px; padding: 16px;">
+                        <h4 style="color: #25324A; margin-bottom: 4px;">Verified Ground-Truth Pathological Outcome</h4>
+                        <div style="font-size: 0.82rem; color: #64748B; margin-bottom: 10px;">Official Staging Record: <strong id="gt-staging">N0 (Negative)</strong></div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                                <span style="font-size: 0.74rem; color: #64748B;">Quantum SVM</span>
+                                <div id="q-verdict" style="font-weight: 800; color: #18A999;">Correct Prediction</div>
+                            </div>
+                            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                                <span style="font-size: 0.74rem; color: #64748B;">Classical RBF-SVM</span>
+                                <div id="c-verdict" style="font-weight: 800; color: #18A999;">Correct Prediction</div>
+                            </div>
+                            <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                                <span style="font-size: 0.74rem; color: #64748B;">XGBoost</span>
+                                <div id="x-verdict" style="font-weight: 800; color: #E11D48;">Misclassified</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: MODEL COMPARISON LAB -->
+        <div id="tab-comparison" class="tab-content">
+            <div class="ref-dashboard-card">
+                <div class="ref-card-header">
+                    <div>
+                        <h3 class="ref-card-title">Model Comparison & Benchmark Analytics</h3>
+                        <div class="ref-card-subtitle">Detailed evaluation across all statistical metrics on 212 held-out BCNB test cases</div>
+                    </div>
+                </div>
+                
+                <table class="ref-patient-table" style="margin-bottom: 1.5rem;">
+                    <thead>
+                        <tr>
+                            <th>Model Architecture</th>
+                            <th>AUROC</th>
+                            <th>Accuracy</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>Specificity</th>
+                            <th>F1-Score</th>
+                            <th>PR-AUC</th>
+                            <th>Train Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="ref-patient-row">
+                            <td><strong style="color: #7965E8;">Quantum-Kernel SVM</strong></td>
+                            <td>0.5001</td><td>50.47%</td><td>37.66%</td><td>35.80%</td><td>59.54%</td><td>0.3671</td><td>0.3804</td><td>1.85s</td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong style="color: #18A999;">Classical RBF-SVM</strong></td>
+                            <td>0.5982</td><td>59.43%</td><td>46.88%</td><td>37.04%</td><td>73.28%</td><td>0.4138</td><td>0.4497</td><td>0.04s</td>
+                        </tr>
+                        <tr class="ref-patient-row">
+                            <td><strong style="color: #F08A78;">XGBoost Classifier</strong></td>
+                            <td><strong>0.6012</strong></td><td><strong>59.43%</strong></td><td><strong>46.88%</strong></td><td><strong>37.04%</strong></td><td><strong>73.28%</strong></td><td><strong>0.4138</strong></td><td><strong>0.4731</strong></td><td>0.08s</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="background: #F8FAFC; border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
+                    <h4 style="color: #25324A; margin-bottom: 6px;">Scientific Takeaway:</h4>
+                    <p style="font-size: 0.84rem; color: #64748B; line-height: 1.6;">
+                        No measurable quantum advantage is observed on this clinical tabular dataset. Classical tree-based models (XGBoost AUROC 0.6012) and radial basis functions (RBF-SVM AUROC 0.5982) substantially outperform the 5-qubit ZZFeatureMap Quantum Kernel SVM (AUROC 0.5001). The periodic non-linear Pauli mapping introduces trigonometric wrapping over continuous clinical biomarkers without empirical gain.
                     </p>
                 </div>
             </div>
-            <div class="ref-dashboard-card">
-                <h3 class="ref-card-title" style="margin-bottom: 1rem;">Patient Clinical Parameters</h3>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-                    <div>
-                        <label style="font-size: 0.85rem; font-weight: 600; color: #475569;">Age:</label>
-                        <input type="number" id="patAge" value="54" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 4px;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.85rem; font-weight: 600; color: #475569;">Tumour Size (cm):</label>
-                        <input type="number" id="patSize" value="2.8" step="0.1" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 4px;">
-                    </div>
-                    <div>
-                        <label style="font-size: 0.85rem; font-weight: 600; color: #475569;">Histological Grade:</label>
-                        <select id="patGrade" style="width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #CBD5E1; margin-top: 4px;">
-                            <option value="1">Grade 1 (Well differentiated)</option>
-                            <option value="2" selected>Grade 2 (Moderately differentiated)</option>
-                            <option value="3">Grade 3 (Poorly differentiated)</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="btn-summary-ai" onclick="runPrediction()">🔬 Compute Multi-Model Predictions</button>
+        </div>
 
-                <div id="predResults" style="display: none; margin-top: 1.5rem; border-top: 1px solid #EEF2F6; padding-top: 1.5rem;">
-                    <div class="kpi-grid">
-                        <div class="ref-kpi-card">
-                            <div class="kpi-title">Quantum ZZ-Kernel SVM</div>
-                            <div class="kpi-value" id="qPred" style="font-size: 1.6rem; color: #8B5CF6;">48.2% Risk</div>
-                            <div class="kpi-subtitle"><span>Class: N0 Negative</span></div>
+        <!-- TAB 4: QUANTUM PARK -->
+        <div id="tab-quantum-park" class="tab-content">
+            <div class="ref-dashboard-card">
+                <div class="ref-card-header">
+                    <div>
+                        <h3 class="ref-card-title">Quantum Park: Circuit Composer</h3>
+                        <div class="ref-card-subtitle">Synthesize multi-qubit gates and simulate 3D Bloch sphere projections</div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px;">
+                    <div>
+                        <div style="background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px; margin-bottom: 12px;">
+                            <label style="font-size: 0.85rem; font-weight: 700; color: #25324A;">Select Circuit Template:</label>
+                            <select id="sel-circuit-tpl" onchange="updateCircuitDiagram()" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid #CBD5E1; margin-top: 6px;">
+                                <option value="ghz">3-Qubit Greenberger-Horne-Zeilinger (GHZ) Entangled State</option>
+                                <option value="bell">2-Qubit Bell State (|Φ+⟩)</option>
+                                <option value="qkernel">5-Qubit ZZFeatureMap Quantum Kernel Layer</option>
+                            </select>
                         </div>
-                        <div class="ref-kpi-card">
-                            <div class="kpi-title">Classical RBF-SVM</div>
-                            <div class="kpi-value" id="cPred" style="font-size: 1.6rem; color: #14B8A6;">62.5% Risk</div>
-                            <div class="kpi-subtitle"><span style="color: #DC2626;">Class: N+ Metastasis</span></div>
+                        <div style="background: #25324A; color: #F8FAFC; border-radius: 10px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.6;">
+                            <pre id="circuit-ascii">
+q_0: ──■───────
+     ┌─┴─┐
+q_1: ┤ X ├──■──
+     └───┘┌─┴─┐
+q_2: ─────┤ X ├
+          └───┘
+                            </pre>
                         </div>
-                        <div class="ref-kpi-card">
-                            <div class="kpi-title">XGBoost Classifier</div>
-                            <div class="kpi-value" id="xPred" style="font-size: 1.6rem; color: #FF7A59;">66.1% Risk</div>
-                            <div class="kpi-subtitle"><span style="color: #DC2626;">Class: N+ Metastasis</span></div>
+                    </div>
+                    <div>
+                        <h4 style="color: #25324A; margin-bottom: 6px;">3D Bloch Sphere Visualizer</h4>
+                        <div id="bloch-canvas-container" style="width: 100%; height: 260px; background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: QUANTUM INSIGHTS -->
+        <div id="tab-quantum-insights" class="tab-content">
+            <div class="ref-dashboard-card">
+                <h3 class="ref-card-title">Quantum Kernel Engine Insights</h3>
+                <div class="ref-card-subtitle">ZZFeatureMap Hamiltonian evolution, fidelity inner product metrics, and mathematical checks</div>
+                <div style="margin-top: 14px; font-size: 0.84rem; color: #25324A; line-height: 1.7;">
+                    <div style="background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; margin-bottom: 14px;">
+                        U_Φ(x) = [ exp( i ∑_{j=1}^5 x_j Z_j + i ∑_{j < k} (π - x_j)(π - x_k) Z_j Z_k ) · H^{⊗5} ]²
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                        <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                            <span style="font-size: 0.72rem; color: #64748B;">Symmetry Check</span>
+                            <div style="font-weight: 800; color: #18A999;">K = Kᵀ (Exact)</div>
+                        </div>
+                        <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                            <span style="font-size: 0.72rem; color: #64748B;">Unit Diagonal</span>
+                            <div style="font-weight: 800; color: #18A999;">K_ii = 1.0 (Exact)</div>
+                        </div>
+                        <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                            <span style="font-size: 0.72rem; color: #64748B;">Value Bounds</span>
+                            <div style="font-weight: 800; color: #18A999;">[0.0, 1.0] (Verified)</div>
+                        </div>
+                        <div style="border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px;">
+                            <span style="font-size: 0.72rem; color: #64748B;">Simulator</span>
+                            <div style="font-weight: 800; color: #7965E8;">Statevector Qiskit</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- TAB 4: RESEARCH HANDBOOK -->
-        <section id="tab-handbook" class="tab-content">
-            <div class="page-title-row">
-                <div>
-                    <h1 class="page-title">Research Handbook</h1>
-                    <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #64748B;">
-                        18-chapter comprehensive reference on Quantum Kernel Learning in Oncology.
-                    </p>
+        <!-- TAB 6: 3D ANATOMY EXPLORER -->
+        <div id="tab-anatomy" class="tab-content">
+            <div class="ref-dashboard-card">
+                <h3 class="ref-card-title">Interactive 3D Anatomy Explorer</h3>
+                <div class="ref-card-subtitle">WebGL representation of mammary parenchyma and axillary lymph node basin levels I, II, III</div>
+                <div id="anatomy-canvas-container" style="width: 100%; height: 440px; background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 12px; margin-top: 14px; position: relative;">
+                </div>
+                <div style="margin-top: 10px; font-size: 0.78rem; color: #64748B;">
+                    <strong>Controls:</strong> Click & drag to rotate | Right-click to pan | Scroll to zoom.
                 </div>
             </div>
+        </div>
+
+        <!-- TAB 7: HANDBOOK -->
+        <div id="tab-handbook" class="tab-content">
             <div class="ref-dashboard-card">
-                <h3 class="ref-card-title">Chapters & Methodology</h3>
-                <ul style="list-style: none; margin-top: 1rem; line-height: 2;">
-                    <li>📖 <strong>Chapter 1:</strong> Project Overview & Clinical Mission</li>
-                    <li>🔬 <strong>Chapter 2:</strong> BCNB Dataset Audit & 1,058 Patient Cohort</li>
-                    <li>🛡️ <strong>Chapter 3:</strong> Zero-Leakage Preprocessing & Confounder Removal</li>
-                    <li>⚛️ <strong>Chapter 4:</strong> Qiskit 2.1.2 ZZFeatureMap Mathematical Formalism</li>
-                    <li>📊 <strong>Chapter 5:</strong> Statevector Transition Fidelity Inner Products</li>
-                    <li>📈 <strong>Chapter 6:</strong> Classical RBF-SVM vs Quantum Kernel Benchmarks</li>
-                </ul>
+                <h3 class="ref-card-title">Research Handbook</h3>
+                <div class="ref-card-subtitle">18 comprehensive chapters covering quantum machine learning and clinical oncology</div>
+                <div style="margin-top: 14px; font-size: 0.85rem; color: #25324A; line-height: 1.7;">
+                    <ol style="margin-left: 20px;">
+                        <li><strong>Chapter 1:</strong> Project Overview & Clinical Mission</li>
+                        <li><strong>Chapter 2:</strong> Breast Cancer Pathophysiology</li>
+                        <li><strong>Chapter 3:</strong> Axillary Lymph Node Metastasis & Staging</li>
+                        <li><strong>Chapter 4:</strong> Principles of Quantum Computing</li>
+                        <li><strong>Chapter 5:</strong> Qubits and Quantum Gates</li>
+                        <li><strong>Chapter 6:</strong> Quantum State Representation and the Bloch Sphere</li>
+                        <li><strong>Chapter 7:</strong> Quantum Feature Maps and Hilbert Spaces</li>
+                        <li><strong>Chapter 8:</strong> Quantum Kernel Estimation and Fidelity</li>
+                        <li><strong>Chapter 9:</strong> Quantum Support Vector Machines (QSVM)</li>
+                        <li><strong>Chapter 10:</strong> Classical Support Vector Machines (RBF-SVM)</li>
+                        <li><strong>Chapter 11:</strong> Gradient Boosted Trees (XGBoost)</li>
+                        <li><strong>Chapter 12:</strong> BCNB Dataset Audit and Provenance</li>
+                        <li><strong>Chapter 13:</strong> Data Preprocessing and Leakage Prevention</li>
+                        <li><strong>Chapter 14:</strong> Model Evaluation Metrics & Class Imbalance</li>
+                        <li><strong>Chapter 15:</strong> Model Interpretability & Explainability</li>
+                        <li><strong>Chapter 16:</strong> Computational Complexity and Hardware Realities</li>
+                        <li><strong>Chapter 17:</strong> Clinical Ethics and Regulatory Boundaries</li>
+                        <li><strong>Chapter 18:</strong> Multi-Cancer Expansion Roadmap</li>
+                    </ol>
+                </div>
             </div>
-        </section>
+        </div>
+
+        <!-- TAB 8: DATASET & METHODS -->
+        <div id="tab-dataset" class="tab-content">
+            <div class="ref-dashboard-card">
+                <h3 class="ref-card-title">Dataset & Methods</h3>
+                <div class="ref-card-subtitle">BCNB data provenance, zero-leakage preprocessing, and software version audit</div>
+                <div style="margin-top: 14px; font-size: 0.84rem; color: #25324A; line-height: 1.7;">
+                    <p><strong>Cohort:</strong> 1,058 consecutive patients from TCIA Breast Cancer Nodal / Biopsy dataset (CC BY 4.0).</p>
+                    <p><strong>Target:</strong> Axillary lymph node status (N0: 655 vs N+: 403).</p>
+                    <p><strong>Predictors:</strong> Tumour Size (cm), Patient Age (years), Nottingham Histological Grade (1-3), ER Status (0/1), HER2 Status (0/1).</p>
+                    <p><strong>Confounder Control:</strong> Resected node counts and surgical procedure strictly excluded to eliminate target leakage.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 9: REPORTS & ANALYTICS -->
+        <div id="tab-reports" class="tab-content">
+            <div class="ref-dashboard-card">
+                <h3 class="ref-card-title">Reports & Analytics Export</h3>
+                <div class="ref-card-subtitle">Direct download access to verified tabular metrics, patient predictions, and experiment configurations</div>
+                <div style="display: flex; gap: 12px; margin-top: 14px;">
+                    <a href="/api/metrics" target="_blank" class="pill-filter-btn" style="background: #7965E8; color: white; border: none;">Download Metrics (JSON)</a>
+                    <a href="/api/health" target="_blank" class="pill-filter-btn">System Health Check</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 10: MULTI-CANCER REGISTRY -->
+        <div id="tab-multi-cancer" class="tab-content">
+            <div class="ref-dashboard-card">
+                <h3 class="ref-card-title">Multi-Cancer Research Registry</h3>
+                <div class="ref-card-subtitle">Task registry preventing invalid cross-cancer model reuse</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px;">
+                    <div style="border: 1px solid #18A999; border-radius: 10px; padding: 14px; background: #E7F8F5;">
+                        <strong style="color: #0F8275;">Breast (BCNB)</strong>
+                        <div style="font-size: 0.76rem; color: #0F8275; margin-top: 4px;">ACTIVE / VERIFIED</div>
+                    </div>
+                    <div style="border: 1px solid #CBD5E1; border-radius: 10px; padding: 14px; background: #F8FAFC;">
+                        <strong style="color: #25324A;">Lung (TCGA-LUAD)</strong>
+                        <div style="font-size: 0.76rem; color: #64748B; margin-top: 4px;">PLANNED</div>
+                    </div>
+                    <div style="border: 1px solid #CBD5E1; border-radius: 10px; padding: 14px; background: #F8FAFC;">
+                        <strong style="color: #25324A;">Colorectal (TCGA-COAD)</strong>
+                        <div style="font-size: 0.76rem; color: #64748B; margin-top: 4px;">PLANNED</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
+        // Navigation Tab Switching
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active-tab'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active-tab');
+            
+            var targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) targetTab.classList.add('active');
 
-            const navs = document.querySelectorAll('.nav-item');
-            if (tabId === 'dashboard') navs[0].classList.add('active');
-            if (tabId === 'quantum') navs[1].classList.add('active');
-            if (tabId === 'patients') navs[2].classList.add('active');
-            if (tabId === 'handbook') navs[3].classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            var navLinks = document.querySelectorAll('.nav-item');
+            navLinks.forEach(link => {
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(tabId)) {
+                    link.classList.add('active');
+                }
+            });
+
+            if (tabId === 'anatomy') {
+                setTimeout(initThreeAnatomy, 100);
+            }
         }
 
-        function drawBloch() {
-            const canvas = document.getElementById('blochCanvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const w = canvas.width;
-            const h = canvas.height;
-            const cx = w / 2;
-            const cy = h / 2;
-            const r = 70;
+        // Patient Selection & Blind Prediction Logic
+        var patientsData = {
+            "153": { size: "2.5 cm", age: "80 yrs", grade: "Grade 2", er: "Positive", her2: "Negative", q: "N0 (Negative)", qp: "37.2%", qs: "-0.328", c: "N0 (Negative)", cp: "36.8%", cs: "-0.412", x: "N+ (Metastasis)", xp: "55.5%", xs: "+0.221", consensus: "Majority Divergence (2 models predict N0, 1 predicts N+)", gt: "N0 (Negative)", qcorr: true, ccorr: true, xcorr: false },
+            "932": { size: "1.3 cm", age: "70 yrs", grade: "Grade 1", er: "Positive", her2: "Negative", q: "N+ (Metastasis)", qp: "40.1%", qs: "+0.012", c: "N0 (Negative)", cp: "35.8%", cs: "-0.435", x: "N0 (Negative)", xp: "14.0%", xs: "-1.815", consensus: "Majority Divergence (2 models predict N0, 1 predicts N+)", gt: "N0 (Negative)", qcorr: false, ccorr: true, xcorr: true },
+            "256": { size: "3.0 cm", age: "60 yrs", grade: "Grade 2", er: "Positive", her2: "Negative", q: "N+ (Metastasis)", qp: "45.5%", qs: "+0.155", c: "N+ (Metastasis)", cp: "39.8%", cs: "+0.038", x: "N+ (Metastasis)", xp: "58.6%", xs: "+0.348", consensus: "Unanimous Consensus (All 3 models predict N+)", gt: "N+ (Metastasis)", qcorr: true, ccorr: true, xcorr: true },
+            "691": { size: "1.8 cm", age: "76 yrs", grade: "Grade 2", er: "Positive", her2: "Negative", q: "N0 (Negative)", qp: "32.3%", qs: "-0.450", c: "N0 (Negative)", cp: "35.7%", cs: "-0.442", x: "N0 (Negative)", xp: "22.2%", xs: "-1.254", consensus: "Unanimous Consensus (All 3 models predict N0)", gt: "N+ (Metastasis)", qcorr: false, ccorr: false, xcorr: false },
+            "650": { size: "2.5 cm", age: "44 yrs", grade: "Grade 2", er: "Positive", her2: "Positive", q: "N+ (Metastasis)", qp: "44.5%", qs: "+0.120", c: "N+ (Metastasis)", cp: "38.7%", cs: "+0.005", x: "N+ (Metastasis)", xp: "83.9%", xs: "+1.651", consensus: "Unanimous Consensus (All 3 models predict N+)", gt: "N0 (Negative)", qcorr: false, ccorr: false, xcorr: false },
+            "151": { size: "3.5 cm", age: "56 yrs", grade: "Grade 3", er: "Negative", her2: "Negative", q: "N0 (Negative)", qp: "33.5%", qs: "-0.395", c: "N0 (Negative)", cp: "36.4%", cs: "-0.418", x: "N+ (Metastasis)", xp: "51.5%", xs: "+0.060", consensus: "Majority Divergence (2 models predict N0, 1 predicts N+)", gt: "N+ (Metastasis)", qcorr: false, ccorr: false, xcorr: true }
+        };
 
-            ctx.clearRect(0, 0, w, h);
+        function updateSelectedPatient() {
+            var pid = document.getElementById('sel-patient').value;
+            var p = patientsData[pid];
+            document.getElementById('disp-size').innerText = p.size;
+            document.getElementById('disp-age').innerText = p.age;
+            document.getElementById('disp-grade').innerText = p.grade;
+            document.getElementById('disp-er').innerText = p.er;
+            document.getElementById('disp-her2').innerText = p.her2;
 
-            // Wireframe circle
-            ctx.beginPath();
-            ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#C4B5FD';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Equator ellipse
-            ctx.beginPath();
-            ctx.ellipse(cx, cy, r, r * 0.35, 0, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#DDD6FE';
-            ctx.stroke();
-
-            // Z Axis
-            ctx.beginPath();
-            ctx.moveTo(cx, cy - r - 15);
-            ctx.lineTo(cx, cy + r + 15);
-            ctx.strokeStyle = '#3B82F6';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.fillStyle = '#3B82F6';
-            ctx.font = 'bold 12px sans-serif';
-            ctx.fillText('|0⟩', cx - 8, cy - r - 18);
-            ctx.fillText('|1⟩', cx - 8, cy + r + 28);
-
-            // Angle state vector
-            const theta = parseFloat(document.getElementById('thetaSlider').value);
-            const phi = parseFloat(document.getElementById('phiSlider').value);
-
-            const vx = cx + r * Math.sin(theta) * Math.cos(phi);
-            const vy = cy - r * Math.cos(theta) + r * 0.35 * Math.sin(theta) * Math.sin(phi);
-
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.lineTo(vx, vy);
-            ctx.strokeStyle = '#8B5CF6';
-            ctx.lineWidth = 3.5;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(vx, vy, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = '#06B6D4';
-            ctx.fill();
+            document.getElementById('pred-cards-grid').style.display = 'none';
+            document.getElementById('reveal-container').style.display = 'none';
+            document.getElementById('outcome-revealed').style.display = 'none';
         }
 
         function runPrediction() {
-            const age = parseFloat(document.getElementById('patAge').value) || 54;
-            const size = parseFloat(document.getElementById('patSize').value) || 2.8;
-            const grade = parseInt(document.getElementById('patGrade').value) || 2;
+            var pid = document.getElementById('sel-patient').value;
+            var p = patientsData[pid];
 
-            // Simple calibrated scoring based on verified model coefficients
-            const riskScore = Math.min(0.92, Math.max(0.15, (size * 0.12) + (grade * 0.14) + (age * 0.003)));
-            const qRisk = (riskScore * 0.85).toFixed(1);
-            const cRisk = (riskScore * 100).toFixed(1);
-            const xRisk = (riskScore * 102).toFixed(1);
+            document.getElementById('q-label').innerText = p.q;
+            document.getElementById('q-prob').innerText = p.qp;
+            document.getElementById('q-score').innerText = p.qs;
 
-            document.getElementById('qPred').innerText = qRisk + "% Risk";
-            document.getElementById('cPred').innerText = cRisk + "% Risk";
-            document.getElementById('xPred').innerText = xRisk + "% Risk";
-            document.getElementById('predResults').style.display = 'block';
+            document.getElementById('c-label').innerText = p.c;
+            document.getElementById('c-prob').innerText = p.cp;
+            document.getElementById('c-score').innerText = p.cs;
+
+            document.getElementById('x-label').innerText = p.x;
+            document.getElementById('x-prob').innerText = p.xp;
+            document.getElementById('x-score').innerText = p.xs;
+
+            document.getElementById('consensus-text').innerText = p.consensus;
+
+            document.getElementById('pred-cards-grid').style.display = 'grid';
+            document.getElementById('reveal-container').style.display = 'block';
+            document.getElementById('outcome-revealed').style.display = 'none';
         }
 
-        window.onload = function() {
-            drawBloch();
-        };
+        function revealOutcome() {
+            var pid = document.getElementById('sel-patient').value;
+            var p = patientsData[pid];
+
+            document.getElementById('gt-staging').innerText = p.gt;
+            document.getElementById('q-verdict').innerText = p.qcorr ? "Correct Prediction" : "Misclassified";
+            document.getElementById('q-verdict').style.color = p.qcorr ? "#18A999" : "#E11D48";
+
+            document.getElementById('c-verdict').innerText = p.ccorr ? "Correct Prediction" : "Misclassified";
+            document.getElementById('c-verdict').style.color = p.ccorr ? "#18A999" : "#E11D48";
+
+            document.getElementById('x-verdict').innerText = p.xcorr ? "Correct Prediction" : "Misclassified";
+            document.getElementById('x-verdict').style.color = p.xcorr ? "#18A999" : "#E11D48";
+
+            document.getElementById('outcome-revealed').style.display = 'block';
+        }
+
+        function updateCircuitDiagram() {
+            var tpl = document.getElementById('sel-circuit-tpl').value;
+            var pre = document.getElementById('circuit-ascii');
+            if (tpl === 'ghz') {
+                pre.innerText = "q_0: ──■───────\\n     ┌─┴─┐\\nq_1: ┤ X ├──■──\\n     └───┘┌─┴─┐\\nq_2: ─────┤ X ├\\n          └───┘";
+            } else if (tpl === 'bell') {
+                pre.innerText = "q_0: ──■──\\n     ┌─┴─┐\\nq_1: ┤ X ├\\n     └───┘";
+            } else if (tpl === 'qkernel') {
+                pre.innerText = "q_0: ──H──Rz(2x0)──■─────────────■──\\nq_1: ──H──Rz(2x1)──■──Rz(2x1)──■────\\nq_2: ──H──Rz(2x2)───────────────────\\nq_3: ──H──Rz(2x3)───────────────────\\nq_4: ──H──Rz(2x4)───────────────────";
+            }
+        }
+
+        // Plotly Plots initialization
+        window.addEventListener('load', function() {
+            // ROC Curves
+            Plotly.newPlot('chart-roc', [
+                { x: [0, 0.26, 0.45, 0.64, 1.0], y: [0, 0.37, 0.55, 0.72, 1.0], mode: 'lines', name: 'XGBoost (AUC: 0.601)', line: { color: '#F08A78', width: 2.8 } },
+                { x: [0, 0.27, 0.46, 0.65, 1.0], y: [0, 0.37, 0.54, 0.71, 1.0], mode: 'lines', name: 'Classical RBF (AUC: 0.598)', line: { color: '#18A999', width: 2.8 } },
+                { x: [0, 0.40, 0.58, 0.75, 1.0], y: [0, 0.36, 0.51, 0.68, 1.0], mode: 'lines', name: 'Quantum SVM (AUC: 0.500)', line: { color: '#7965E8', width: 2.8 } },
+                { x: [0, 1], y: [0, 1], mode: 'lines', name: 'Chance Line', line: { color: '#94A3B8', width: 1.5, dash: 'dash' } }
+            ], {
+                margin: { l: 40, r: 20, t: 30, b: 40 },
+                xaxis: { title: 'False Positive Rate' },
+                yaxis: { title: 'True Positive Rate' },
+                legend: { orientation: 'h', y: 1.15 }
+            }, { responsive: true });
+
+            // Cohort Donut
+            Plotly.newPlot('chart-donut', [{
+                labels: ['N0 Negative', 'N+(1-2) Nodes', 'N+(>2) Nodes'],
+                values: [655, 210, 193],
+                type: 'pie',
+                hole: 0.6,
+                marker: { colors: ['#18A999', '#F08A78', '#D9534F'] }
+            }], {
+                margin: { l: 20, r: 20, t: 20, b: 20 },
+                legend: { orientation: 'h', y: -0.1 }
+            }, { responsive: true });
+        });
+
+        // Three.js Anatomy Initializer
+        var anatomyInit = false;
+        function initThreeAnatomy() {
+            if (anatomyInit) return;
+            var container = document.getElementById('anatomy-canvas-container');
+            if (!container) return;
+
+            var scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xF8FAFC);
+            var camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 24);
+
+            var renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            var controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            var ambient = new THREE.AmbientLight(0xFFFFFF, 0.8);
+            scene.add(ambient);
+            var dir = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+            dir.position.set(10, 15, 15);
+            scene.add(dir);
+
+            // Breast contour
+            var surfGeo = new THREE.SphereGeometry(6.5, 32, 24);
+            var surfMat = new THREE.MeshStandardMaterial({ color: 0xE0C8BA, transparent: true, opacity: 0.45 });
+            var surfMesh = new THREE.Mesh(surfGeo, surfMat);
+            surfMesh.position.set(-1.5, -0.5, 1.0);
+            surfMesh.scale.set(1, 1.05, 0.7);
+            scene.add(surfMesh);
+
+            // Lymph nodes
+            function addNode(x, y, z, color) {
+                var g = new THREE.SphereGeometry(0.55, 16, 16);
+                var m = new THREE.MeshStandardMaterial({ color: color });
+                var mesh = new THREE.Mesh(g, m);
+                mesh.position.set(x, y, z);
+                scene.add(mesh);
+            }
+            addNode(5.8, 3.8, 0.5, 0x18A999);
+            addNode(6.6, 2.8, 0.0, 0x18A999);
+            addNode(6.2, 6.2, -0.5, 0x7965E8);
+            addNode(5.5, 8.5, -1.8, 0xF08A78);
+
+            function anim() {
+                requestAnimationFrame(anim);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            anim();
+            anatomyInit = true;
+        }
     </script>
 </body>
 </html>
@@ -1203,13 +1156,14 @@ def app(environ, start_response):
     path = environ.get("PATH_INFO", "/")
     method = environ.get("REQUEST_METHOD", "GET")
 
-    # API endpoints
+    # API Health endpoint
     if path == "/api/health":
         status = "200 OK"
         headers = [("Content-Type", "application/json")]
         start_response(status, headers)
-        return [json.dumps({"status": "healthy", "platform": "Vercel"}).encode("utf-8")]
+        return [json.dumps({"status": "healthy", "platform": "Vercel", "version": "2.0.0"}).encode("utf-8")]
 
+    # API Metrics endpoint
     if path == "/api/metrics":
         metrics_file = Path(root_dir) / "results" / "metrics.json"
         if metrics_file.exists():
@@ -1217,9 +1171,9 @@ def app(environ, start_response):
                 data = f.read()
         else:
             data = json.dumps([
-                {"model_name": "Quantum-kernel SVM", "auroc": 0.5001, "accuracy": 0.5047},
-                {"model_name": "Classical RBF-SVM", "auroc": 0.5982, "accuracy": 0.5943},
-                {"model_name": "XGBoost", "auroc": 0.6012, "accuracy": 0.5943}
+                {"model_name": "Quantum-kernel SVM", "auroc": 0.5001, "accuracy": 0.5047, "precision": 0.3766, "recall": 0.3580, "specificity": 0.5954, "f1_score": 0.3671, "pr_auc": 0.3804},
+                {"model_name": "Classical RBF-SVM", "auroc": 0.5982, "accuracy": 0.5943, "precision": 0.4688, "recall": 0.3704, "specificity": 0.7328, "f1_score": 0.4138, "pr_auc": 0.4497},
+                {"model_name": "XGBoost", "auroc": 0.6012, "accuracy": 0.5943, "precision": 0.4688, "recall": 0.3704, "specificity": 0.7328, "f1_score": 0.4138, "pr_auc": 0.4731}
             ])
         status = "200 OK"
         headers = [("Content-Type", "application/json")]

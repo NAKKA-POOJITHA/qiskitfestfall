@@ -14,7 +14,6 @@ from frontend.dashboard_view import render_research_dashboard
 
 st.set_page_config(
     page_title="Research Dashboard — QuantumCure AI",
-    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
