@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "app.py": {
+      "excludeFiles": "{tests/**,.pytest_cache/**,dataset/raw/**}"
+    }
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/app.py" }
   ]
