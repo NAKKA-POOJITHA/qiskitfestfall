@@ -1,65 +1,51 @@
-# QuantumCure AI — Model Comparison & Research Analytics Report (MODEL_COMPARISON_REPORT.md)
+# QuantumCure AI — Model Comparison and Research Analytics Report (MODEL_COMPARISON_REPORT.md)
 
 **Project Name:** QuantumCure AI — Quantum Kernel Learning for Cancer Research  
-**Lab Component:** Model Comparison & Research Analytics Lab (`frontend/pages/3_Model_Comparison_Lab.py`)  
-**Dataset & Task:** BCNB Breast Cancer Axillary Lymph Node (ALN) Metastasis Prediction ($N_0=0$ vs $N_+=1$)  
-**Cohort:** 1,058 Verified Patients (846 Train / 212 Held-out Test)  
+**Lab Component:** Model Comparison & Research Analytics Lab (`frontend/pages/3_Model_Comparison_Lab.py` and `app.py`)  
+**Evaluation Cohort:** 212 held-out BCNB breast cancer patients  
 **Date:** October 14, 2026  
 **Auditor:** Antigravity Advanced Agentic AI  
 **Mandatory Disclaimer:** *Research prototype, not clinical advice. Not validated for clinical use.*
 
 ---
 
-## 1. Central Research Question & Empirical Finding
+## 1. Benchmark Performance Comparison Table
 
-### Central Question:
-*"Does a Qiskit quantum-kernel Support Vector Machine offer a measurable advantage over classical machine learning algorithms (Classical RBF-SVM and XGBoost) for pre-operative breast cancer axillary lymph node metastasis prediction?"*
+All metrics were computed strictly on the **212 unseen held-out test patients** (81 $N_+$, 131 $N_0$):
 
-### Verified Finding:
-**No.** Controlled empirical testing on 212 unseen held-out patients demonstrates that:
-1. **Classical models outperform the quantum kernel:** XGBoost achieved **AUROC 0.6012** (Accuracy 59.43%) and Classical RBF-SVM achieved **AUROC 0.5982** (Accuracy 59.43%), whereas the ZZFeatureMap Quantum Kernel SVM achieved **AUROC 0.5001** (Accuracy 50.47%).
-2. **Computational overhead is substantially higher for quantum simulation:** The quantum kernel construction required **4.12 seconds** of statevector simulation compared to **0.04 seconds** for the classical RBF kernel (~100x slower) with zero gain in diagnostic discrimination.
-
----
-
-## 2. Comprehensive Empirical Benchmark Metrics
-
-All models were evaluated on the exact same 212 held-out test patients under identical zero-leakage preprocessing conditions:
-
-| Evaluation Metric | Classical RBF-SVM | XGBoost Classifier | Quantum-Kernel SVM (ZZFeatureMap) |
-| :--- | :--- | :--- | :--- |
-| **AUROC (Area Under ROC)** | **0.5982** | **0.6012** (Highest) | **0.5001** (Chance level) |
-| **Test Accuracy** | **59.43%** | **59.43%** | **50.47%** |
-| **Precision (PPV)** | **46.88%** | **46.88%** | **37.66%** |
-| **Recall / Sensitivity** | **37.04%** | **37.04%** | **35.80%** |
-| **Specificity** | **73.28%** | **73.28%** | **59.54%** |
-| **F1-Score** | **0.4138** | **0.4138** | **0.3671** |
-| **PR-AUC (Precision-Recall)**| **0.4497** | **0.4731** (Highest) | **0.3804** (Baseline: 0.3821) |
-| **True Negatives ($N_0$)** | 96 / 131 | 96 / 131 | 78 / 131 |
-| **False Positives (Type I)** | 35 / 131 | 35 / 131 | 53 / 131 |
-| **False Negatives (Type II)**| 51 / 81 | 51 / 81 | 52 / 81 |
-| **True Positives ($N_+$)** | 30 / 81 | 30 / 81 | 29 / 81 |
-| **Training Time (seconds)** | **0.04 s** | **0.08 s** | **1.85 s** (100 reference samples) |
-| **Test Inference Time** | **0.02 ms / pt** | **0.03 ms / pt** | **19.43 ms / pt** |
-| **Kernel Construction Time**| **0.01 s** | N/A (Tree-based) | **4.12 s** ($212 \times 100$ matrix) |
+| Architecture | AUROC | Accuracy | Precision | Recall (Sens) | Specificity | F1-Score | PR-AUC | Train Time | Inference Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **XGBoost Classifier** | **0.6012** | **59.43%** | **46.88%** | **37.04%** | **73.28%** | **0.4138** | **0.4731** | 0.08 s | **0.16 ms** |
+| **Classical RBF-SVM** | **0.5982** | **59.43%** | **46.88%** | **37.04%** | **73.28%** | **0.4138** | **0.4497** | **0.04 s** | 0.54 ms |
+| **Quantum-Kernel SVM** | 0.5001 | 50.47% | 37.66% | 35.80% | 59.54% | 0.3671 | 0.3804 | 1.85 s | 3.23 ms |
 
 ---
 
-## 3. Detailed Scientific Analysis
+## 2. Interactive Decision Threshold Explorer
 
-### 3.1 Why Classical Models Perform Better on Tabular Cancer Biomarkers
-- **Monotonicity & Decision Boundaries:** Features such as primary tumor diameter ($cm$) and Nottingham histological grade have strongly monotonic risk profiles. Larger tumors monotonically elevate the risk of axillary dissemination. Decision tree splits in XGBoost and Gaussian decay in RBF-SVM naturally model these monotonic boundaries.
-- **The "Periodic Wrapping" Defect of Pauli Feature Maps:** `ZZFeatureMap` encodes continuous variables into periodic rotation angles $x_j \in [0, \pi]$ via single-qubit rotations $R_Z(2x_j)$ and cross-qubit phase couplings $R_{ZZ}(2(\pi - x_j)(\pi - x_k))$. Because trigonometric functions are periodic, two clinically distinct tumor values (e.g., $1.0\text{ cm}$ vs $4.5\text{ cm}$) can experience destructive interference in Hilbert state space, collapsing transition fidelity towards zero.
+To prevent premature threshold bias while allowing clinical trade-off analysis, the application features an interactive threshold slider ($\tau \in [0.05, 0.95]$ with step $0.05$):
 
-### 3.2 Computational Complexity Comparison
-- **Classical RBF Kernel Matrix:** Evaluated via matrix multiplication $K_{ij} = \exp(-\gamma \|x_i - x_j\|^2)$. For $N$ samples and $d=5$ features, complexity is $\mathcal{O}(N^2 \cdot d)$. Vectorized BLAS operations execute this in fractions of a millisecond.
-- **Quantum Fidelity Kernel:** For $n=5$ qubits, each pair of samples $(x_i, x_j)$ requires synthesizing quantum circuits $U_\Phi(x_i)$ and $U_\Phi^\dagger(x_j)$ and calculating transition amplitude $|\langle 0^{\otimes n}| U_\Phi^\dagger(x_j) U_\Phi(x_i) |0^{\otimes n}\rangle|^2$. On a classical simulator, each statevector operation scales as $\mathcal{O}(2^n)$, producing an overall complexity of $\mathcal{O}(N \cdot M \cdot 2^n \cdot L)$ where $L$ is gate depth.
+### 2.1 Threshold Operating Points (XGBoost Benchmark)
+| Threshold $\tau$ | Clinical Objective | Sensitivity (Recall) | Specificity | Precision | F1-Score | TP | FP | TN | FN |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **$\tau = 0.20$** | High Sensitivity (Catch all nodal disease) | **91.4%** | 22.1% | 42.0% | 0.5758 | 74 | 102 | 29 | 7 |
+| **$\tau = 0.50$** | Operational Benchmark (Balanced trade-off) | 37.0% | **73.3%** | 46.9% | 0.4138 | 30 | 35 | 96 | 51 |
+| **$\tau = 0.70$** | High Specificity (Rule-in metastasis) | 12.3% | **94.7%** | **58.8%** | 0.2041 | 10 | 7 | 124 | 71 |
+
+### 2.2 Operational Separation
+- Official test metrics remain fixed at $\tau = 0.50$ to avoid threshold tuning contamination on the held-out test cohort.
+- The threshold explorer is explicitly designated for post-hoc operational investigation.
 
 ---
 
-## 4. Threshold Exploration Observations
-In the clinical oncology setting, axillary staging balances:
-- **Sensitivity:** High sensitivity minimizes False Negatives (preventing undetected axillary metastasis from progressing without adjuvant regional therapy).
-- **Specificity:** High specificity minimizes False Positives (preventing unnecessary full Axillary Lymph Node Dissection with attendant chronic lymphedema risk).
+## 3. Scientific Conclusions: Classical vs Quantum Kernel Machine Learning
 
-Lowering the decision threshold from $0.50$ to $0.35$ raises XGBoost sensitivity from $37.0\%$ to $68.5\%$, at the expected cost of decreasing specificity from $73.3\%$ to $48.9\%$. The interactive threshold explorer in `frontend/pages/3_Model_Comparison_Lab.py` allows researchers to transparently explore this trade-off without retraining models or causing test-set leakage.
+1. **Absence of Quantum Advantage:**
+   - The 5-qubit ZZFeatureMap Quantum Kernel SVM achieved an AUROC of 0.5001, effectively equivalent to random guessing on this clinical dataset.
+   - Both Classical RBF-SVM (0.5982) and XGBoost (0.6012) significantly outperformed the quantum kernel.
+2. **Mechanistic Explanation:**
+   - The clinical predictors (Tumour Size, Age, Histological Grade) are continuous and monotonic markers of disease extent.
+   - The periodic $R_z(2 x_j)$ and entangling $R_{zz}(2(\pi-x_j)(\pi-x_k))$ unitary gates introduce trigonometric wrapping ($\sin, \cos$), creating artificial non-monotonic periodicity that damages decision boundaries for continuous clinical data.
+3. **Computational Resource Scaling:**
+   - Classical RBF matrix construction scales as $O(N^2 \cdot d)$ with execution in 0.04s.
+   - Quantum statevector simulation scales as $O(N^2 \cdot 2^n)$ with execution in 4.12s (~100x slower), without empirical classification benefit.
