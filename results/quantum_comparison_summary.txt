@@ -1,0 +1,10 @@
+==================================================
+DID QUANTUM KERNEL LEARNING HELP?
+==================================================
+Quantum-kernel SVM AUROC: 0.5001 | Accuracy: 50.47%
+Classical RBF-SVM AUROC:   0.5982 | Accuracy: 59.43%
+Measured AUROC Difference: -0.0981
+Measured Accuracy Difference: -8.96%
+--------------------------------------------------
+SCIENTIFIC ASSESSMENT: Classical RBF-SVM Outperformed Quantum Kernel (-0.0981 AUROC).
+The classical RBF kernel demonstrated superior predictive discrimination compared to the ZZ quantum feature map. This empirical outcome is consistent with NISQ literature: classical kernels with continuous smoothness parameters (gamma) often capture tabular non-linearities more effectively than fixed 2-repetition ZZ quantum phase interactions without circuit parameter optimization.

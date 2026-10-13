@@ -1,0 +1,29 @@
+{
+  "dataset_name": "BCNB",
+  "cancer_type": "Breast cancer",
+  "prediction_target": "Axillary lymph-node metastasis (ALN status)",
+  "quantum_n_train": 100,
+  "total_train_available": 846,
+  "test_n_samples": 212,
+  "feature_names": [
+    "Tumour Size(cm)",
+    "Age(years)",
+    "Histological grading",
+    "ER_encoded",
+    "HER2_encoded"
+  ],
+  "feature_dimension": 5,
+  "random_state": 42,
+  "quantum_success": true,
+  "quantum_error": null,
+  "classical_svm_params": {
+    "C": 2.0,
+    "gamma": 0.5
+  },
+  "xgboost_params": {
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "n_estimators": 50
+  },
+  "total_runtime_seconds": 19.54
+}

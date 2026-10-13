@@ -1,0 +1,37 @@
+{
+  "feature_map": "ZZFeatureMap",
+  "feature_dimension": 5,
+  "reps": 2,
+  "entanglement": "linear",
+  "circuit_depth": 22,
+  "n_train": 100,
+  "n_test": 212,
+  "train_kernel_time_sec": 0.5042,
+  "svm_fit_time_sec": 0.003,
+  "total_quantum_time_sec": 1.5475,
+  "qiskit_version": "2.1.2",
+  "train_matrix_shape": [
+    100,
+    100
+  ],
+  "test_matrix_shape": [
+    212,
+    100
+  ],
+  "train_checks": {
+    "is_finite": true,
+    "min_fidelity": 2.3479823190087622e-08,
+    "max_fidelity": 1.0,
+    "valid_bounds": true,
+    "diagonal_unit_max_error": 0.0,
+    "symmetry_max_error": 0.0,
+    "is_symmetric": true,
+    "is_unit_diagonal": true
+  },
+  "test_checks": {
+    "is_finite": true,
+    "min_fidelity": 1.8871757805168172e-08,
+    "max_fidelity": 0.9999999999999973,
+    "valid_bounds": true
+  }
+}

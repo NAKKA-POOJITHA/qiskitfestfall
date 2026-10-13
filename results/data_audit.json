@@ -1,0 +1,215 @@
+{
+  "dataset_name": "BCNB (Breast Cancer Nodal / Biopsy Clinical Dataset)",
+  "source": "The Cancer Imaging Archive (TCIA) / Nature Scientific Data",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "discovered_files": [
+    {
+      "path": "dataset/raw/patient-clinical-data.xlsx",
+      "name": "patient-clinical-data.xlsx",
+      "size_bytes": 77507
+    }
+  ],
+  "primary_file": "dataset/raw/patient-clinical-data.xlsx",
+  "status": "VERIFIED_READY",
+  "target_identified": true,
+  "target_column": "ALN status",
+  "records_count": 1058,
+  "duplicates": {
+    "row_duplicates": 0,
+    "patient_id_duplicates": 0
+  },
+  "target_distribution": {
+    "N0": 655,
+    "N+(1-2)": 210,
+    "N+(>2)": 193
+  },
+  "binary_class_distribution": {
+    "Class 0 (N0 - Negative)": 655,
+    "Class 1 (N+ - Positive)": 403,
+    "Unknown/Invalid": 0,
+    "Positive_Ratio": 0.3809
+  },
+  "columns": {
+    "Patient ID": {
+      "dtype": "int64",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 1058
+    },
+    "Age(years)": {
+      "dtype": "int64",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 63
+    },
+    "Tumour Size(cm)": {
+      "dtype": "float64",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 38
+    },
+    "Tumour Type": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 3,
+      "value_frequencies": {
+        "Invasive ductal carcinoma": 957,
+        "Other type": 76,
+        "Invasive lobular carcinoma": 25
+      }
+    },
+    "ER": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 2,
+      "value_frequencies": {
+        "Positive": 831,
+        "Negative": 227
+      }
+    },
+    "PR": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 2,
+      "value_frequencies": {
+        "Positive": 790,
+        "Negative": 268
+      }
+    },
+    "HER2": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 2,
+      "value_frequencies": {
+        "Negative": 781,
+        "Positive": 277
+      }
+    },
+    "HER2 Expression": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 4,
+      "value_frequencies": {
+        "2+": 483,
+        "1+": 242,
+        "3+": 206,
+        "0": 127
+      }
+    },
+    "Histological grading": {
+      "dtype": "float64",
+      "null_count": 132,
+      "null_percentage": 12.48,
+      "unique_values_count": 3,
+      "value_frequencies": {
+        "2.0": 518,
+        "3.0": 370,
+        "nan": 132,
+        "1.0": 38
+      }
+    },
+    "Surgical": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 2,
+      "value_frequencies": {
+        "Axillary lymph node dissection": 974,
+        "Sentinel lymph node biopsy": 84
+      }
+    },
+    "Ki67": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 43
+    },
+    "Molecular subtype": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 4,
+      "value_frequencies": {
+        "Luminal B": 372,
+        "Luminal A": 288,
+        "HER2(+)": 273,
+        "Triple negative": 125
+      }
+    },
+    "Number of lymph node metastases": {
+      "dtype": "int64",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 10,
+      "value_frequencies": {
+        "0": 655,
+        "1": 134,
+        "2": 76,
+        "3": 52,
+        "4": 39,
+        "5": 28,
+        "6": 26,
+        "7": 22,
+        "8": 15,
+        "9": 11
+      }
+    },
+    "ALN status": {
+      "dtype": "object",
+      "null_count": 0,
+      "null_percentage": 0.0,
+      "unique_values_count": 3,
+      "value_frequencies": {
+        "N0": 655,
+        "N+(1-2)": 210,
+        "N+(>2)": 193
+      }
+    }
+  },
+  "excluded_columns": {
+    "Number of lymph node metastases": {
+      "reason": "Direct target proxy / severe post-outcome leakage. Strictly 0 for N0 and >0 for N+.",
+      "leakage_risk": "CRITICAL - MUST EXCLUDE"
+    },
+    "Patient ID": {
+      "reason": "Anonymized administrative tracking identifier. Non-predictive; preserved strictly for patient-level grouping and split integrity.",
+      "leakage_risk": "ID Leakage - MUST EXCLUDE from features"
+    },
+    "ALN status": {
+      "reason": "Ground-truth target variable for binary classification.",
+      "leakage_risk": "Target Label"
+    },
+    "Surgical": {
+      "reason": "Surgical procedure type (ALND vs SLNB). Staging decision post-biopsy; excluded from pre-operative baseline to prevent procedural confounding.",
+      "leakage_risk": "Procedural confounding"
+    }
+  },
+  "usable_features": [
+    "Age(years)",
+    "Tumour Size(cm)",
+    "Tumour Type",
+    "ER",
+    "PR",
+    "HER2",
+    "HER2 Expression",
+    "Histological grading",
+    "Ki67",
+    "Molecular subtype"
+  ],
+  "missing_prerequisites": [],
+  "limitations": [
+    "Ki67 column contains heterogeneous string representations (e.g., '0.3', '30-40%', '<5%', '>90%') requiring robust numerical parsing.",
+    "Histological grading has 132 missing values (12.48%) requiring median or mode imputation.",
+    "Number of lymph node metastases is an exact pathological count and must never be permitted in predictor sets to avoid target leakage.",
+    "BCNB dataset is single-center (Chinese cohort); external geographic generalizability is unverified.",
+    "Pre-operative imaging (ultrasound/MRI/CT) and whole slide histopathology images from BCNB are not included in this clinical tabular subset."
+  ],
+  "sheets": [
+    "Sheet1"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "Tumour Size(cm)": {
+    "description": "Maximum clinical/pathological diameter of primary tumor in centimeters.",
+    "type": "Continuous numerical",
+    "units": "cm",
+    "clinical_significance": "Single strongest clinical predictor of axillary nodal involvement in invasive breast carcinoma. Larger tumor volume correlates with increased vascular and lymphatic invasion probability."
+  },
+  "Age(years)": {
+    "description": "Patient age in completed years at the time of primary diagnosis.",
+    "type": "Continuous numerical",
+    "units": "years",
+    "clinical_significance": "Younger age is an established clinical risk factor for more aggressive breast cancer phenotypes and higher rate of nodal metastasis."
+  },
+  "Histological grading": {
+    "description": "Nottingham Histological Grade (Elston-Ellis modification of Scarff-Bloom-Richardson system), Grade 1 to 3.",
+    "type": "Ordinal numerical",
+    "units": "Grade 1 (Well differentiated), Grade 2 (Moderately differentiated), Grade 3 (Poorly differentiated)",
+    "clinical_significance": "High tumor grade reflects rapid cellular proliferation, marked nuclear pleomorphism, and loss of glandular architecture, predisposing to lymph node metastasis."
+  },
+  "ER_encoded": {
+    "description": "Estrogen Receptor nuclear immunohistochemistry status (1 = Positive, 0 = Negative).",
+    "type": "Binary categorical",
+    "units": "0 or 1",
+    "clinical_significance": "Estrogen receptor expression governs tumor hormone sensitivity, differentiation status, and systemic therapeutic responsiveness."
+  },
+  "HER2_encoded": {
+    "description": "Human Epidermal Growth Factor Receptor 2 amplification / overexpression status (1 = Positive, 0 = Negative).",
+    "type": "Binary categorical",
+    "units": "0 or 1",
+    "clinical_significance": "HER2 amplification drives accelerated oncogenic proliferation, invasiveness, and historical predisposition to axillary dissemination."
+  }
+}

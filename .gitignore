@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Streamlit local state
+.streamlit/*
+!.streamlit/config.toml
+
+# Testing & cache
+.pytest_cache/
+.coverage
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Raw Patient Confidential Data (if tracking public git)
+# dataset/raw/*
